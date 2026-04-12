@@ -48,7 +48,7 @@
                     <div class="input-row">
                         <div class="form-group" style="flex: 1;">
                             <label>วันที่จัดทำประวัติ:</label>
-                            <input type="date" id="reportDate">
+                            <input type="text" id="reportDate" readonly placeholder="เลือกวันที่">
                         </div>
                         <div class="form-group" style="flex: 1;">
                             <label>เภสัชกรผู้ประเมิน / ผู้จัดทำ:</label>
@@ -73,11 +73,11 @@
                         <div class="date-row mt-2">
                             <div class="form-group" style="flex: 1;">
                                 <label>วันที่เริ่มใช้ยา (Start):<span class="req-mark">*</span></label>
-                                <input type="date" id="drugStart">
+                                <input type="text" id="drugStart" readonly placeholder="เลือกวันที่">
                             </div>
                             <div class="form-group" style="flex: 1;">
                                 <label>วันที่หยุดยา (Off):<span class="req-mark">*</span></label>
-                                <input type="date" id="drugEnd">
+                                <input type="text" id="drugEnd" readonly placeholder="เลือกวันที่">
                             </div>
                         </div>
 
@@ -108,7 +108,7 @@
                         <input type="text" id="reactionName" placeholder="ระบุอาการของผู้ป่วย เช่น Maculopapular rash">
 
                         <label class="mt-2">วันที่เริ่มปรากฏอาการ:</label>
-                        <input type="date" id="reactionDate">
+                        <input type="text" id="reactionDate" readonly placeholder="เลือกวันที่">
 
                         <div class="action-buttons mt-2">
                             <button id="btnReactionAdd" onclick="addItem('reaction')" class="btn btn-danger">➕ บันทึกอาการแพ้</button>

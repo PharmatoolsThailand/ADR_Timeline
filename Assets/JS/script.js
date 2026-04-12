@@ -23,11 +23,11 @@ window.onload = function() {
     // ==========================================
 
     const flatpickrConfig = {
-        locale: "th", // ใช้ภาษาไทย
-        dateFormat: "Y-m-d", // ฟอร์แมตวันที่ที่ระบบหลังบ้านใช้
-        disableMobile: "true", // 🚀 จุดสำคัญ! ปิดการใช้ UI ของ iOS/Android บังคับใช้ของเว็บแทน
-        altInput: true, // แสดงผลให้ผู้ใช้อ่านง่าย
-        altFormat: "j F Y", // รูปแบบที่แสดงให้คนดู เช่น 12 เมษายน 2026
+        locale: "th",
+        dateFormat: "Y-m-d",
+        disableMobile: true, // 🚨 บังคับให้มือถือใช้ UI ปฏิทินแบบเดียวกับ PC
+        altInput: true,
+        altFormat: "j F Y",
     };
 
     // 1. วันที่จัดทำประวัติ (ตั้งค่าให้เป็นวันปัจจุบันอัตโนมัติ)
@@ -148,23 +148,51 @@ function editItem(id) {
         document.getElementById('drugName').value = item.rawName;
         document.getElementById('drugDose').value = item.dose;
         document.getElementById('drugStartUnknown').checked = item.startUnknown;
-        document.getElementById('drugStart').value = item.start || '';
+
+        // จัดการเรื่องปฏิทิน Flatpickr
+        if (drugStartPicker) {
+            drugStartPicker.setDate(item.start || '');
+        } else {
+            document.getElementById('drugStart').value = item.start || '';
+        }
+
         document.getElementById('drugStart').disabled = item.startUnknown;
         document.getElementById('drugOngoing').checked = item.ongoing;
-        document.getElementById('drugEnd').value = item.end || '';
+
+        if (drugEndPicker) {
+            drugEndPicker.setDate(item.end || '');
+        } else {
+            document.getElementById('drugEnd').value = item.end || '';
+        }
+
         document.getElementById('drugEnd').disabled = item.ongoing;
         document.getElementById('btnDrugAdd').innerHTML = '💾 บันทึกการแก้ไข';
         document.getElementById('btnDrugCancel').style.display = 'inline-flex';
-        document.getElementById('drugName').focus();
+
+        // โฟกัสและเลื่อนมาที่ช่อง "ชื่อยา" ให้อยู่กึ่งกลางจอ
+        const targetElement = document.getElementById('drugName');
+        targetElement.focus();
+        targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
     } else {
         document.getElementById('reactionName').value = item.rawName;
-        document.getElementById('reactionDate').value = item.start;
+
+        // จัดการเรื่องปฏิทิน Flatpickr สำหรับอาการแพ้
+        const rxPicker = document.getElementById('reactionDate')._flatpickr;
+        if (rxPicker) {
+            rxPicker.setDate(item.start || '');
+        } else {
+            document.getElementById('reactionDate').value = item.start || '';
+        }
+
         document.getElementById('btnReactionAdd').innerHTML = '💾 บันทึกการแก้ไข';
         document.getElementById('btnReactionCancel').style.display = 'inline-flex';
-        document.getElementById('reactionName').focus();
-    }
 
-    document.querySelector('.input-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        // โฟกัสและเลื่อนมาที่ช่อง "อาการแพ้" ให้อยู่กึ่งกลางจอ
+        const targetElement = document.getElementById('reactionName');
+        targetElement.focus();
+        targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
 }
 
 function cancelEdit() {
