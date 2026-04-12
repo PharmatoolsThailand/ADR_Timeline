@@ -3,46 +3,42 @@ const ctx = canvas.getContext('2d');
 let items = [];
 let editingId = null;
 
+let drugStartPicker, drugEndPicker;
+
 const A4_WIDTH = 1123;
 const A4_HEIGHT = 794;
-
-// เก็บตัวแปรของปฏิทินไว้เผื่อต้องจัดการตอนกด Disable
-let drugStartPicker, drugEndPicker;
 
 window.onload = function() {
     const savedHosp = localStorage.getItem('savedHospitalName');
     if (savedHosp) document.getElementById('hospitalName').value = savedHosp;
 
-    // เอาโค้ด .valueAsDate = new Date() แบบเดิมออก เพราะเราจะใช้ Flatpickr จัดการแทน
-
     document.getElementById('pharmaNote').addEventListener('input', updateUI);
     document.fonts.ready.then(function() { updateUI(); });
-
-    // ==========================================
-    // 🌟 ตั้งค่า Flatpickr สำหรับปฏิทิน (แก้ปัญหา iOS)
-    // ==========================================
 
     const flatpickrConfig = {
         locale: "th",
         dateFormat: "Y-m-d",
-        disableMobile: true, // 🚨 บังคับให้มือถือใช้ UI ปฏิทินแบบเดียวกับ PC
+        disableMobile: true,
         altInput: true,
         altFormat: "j F Y",
     };
 
-    // 1. วันที่จัดทำประวัติ (ตั้งค่าให้เป็นวันปัจจุบันอัตโนมัติ)
     flatpickr("#reportDate", {
         ...flatpickrConfig,
         defaultDate: "today"
     });
 
-    // 2. วันที่เกิดอาการแพ้
     flatpickr("#reactionDate", flatpickrConfig);
-
-    // 3. วันที่เริ่มยา และ วันที่หยุดยา (เก็บตัวแปรไว้จัดการเปิด/ปิด)
     drugStartPicker = flatpickr("#drugStart", flatpickrConfig);
     drugEndPicker = flatpickr("#drugEnd", flatpickrConfig);
 };
+
+function saveHospital() {
+    const name = document.getElementById('hospitalName').value.trim();
+    localStorage.setItem('savedHospitalName', name);
+    alert('บันทึกชื่อโรงพยาบาลเป็นค่าเริ่มต้นเรียบร้อยแล้วครับ');
+    updateUI();
+}
 
 ['hospitalName', 'patientName', 'patientHN', 'patientAN', 'reportDate', 'preparedBy'].forEach(id => {
     document.getElementById(id).addEventListener('input', function() {
@@ -54,14 +50,18 @@ window.onload = function() {
 document.getElementById('drugOngoing').addEventListener('change', function() {
     const el = document.getElementById('drugEnd');
     if (this.checked) {
-        drugEndPicker.clear(); // ล้างค่าวันที่ออก
-        el.disabled = true; // ปิดการพิมพ์
-        el.nextElementSibling.disabled = true; // ปิดปฏิทินของ Flatpickr
-        el.nextElementSibling.style.backgroundColor = '#f1f5f9';
+        drugEndPicker.clear();
+        el.disabled = true;
+        if(el.nextElementSibling) {
+            el.nextElementSibling.disabled = true;
+            el.nextElementSibling.style.backgroundColor = '#f1f5f9';
+        }
     } else {
         el.disabled = false;
-        el.nextElementSibling.disabled = false;
-        el.nextElementSibling.style.backgroundColor = '#fff';
+        if(el.nextElementSibling) {
+            el.nextElementSibling.disabled = false;
+            el.nextElementSibling.style.backgroundColor = '#fff';
+        }
     }
     el.classList.remove('is-invalid');
 });
@@ -71,12 +71,16 @@ document.getElementById('drugStartUnknown').addEventListener('change', function(
     if (this.checked) {
         drugStartPicker.clear();
         el.disabled = true;
-        el.nextElementSibling.disabled = true;
-        el.nextElementSibling.style.backgroundColor = '#f1f5f9';
+        if(el.nextElementSibling) {
+            el.nextElementSibling.disabled = true;
+            el.nextElementSibling.style.backgroundColor = '#f1f5f9';
+        }
     } else {
         el.disabled = false;
-        el.nextElementSibling.disabled = false;
-        el.nextElementSibling.style.backgroundColor = '#fff';
+        if(el.nextElementSibling) {
+            el.nextElementSibling.disabled = false;
+            el.nextElementSibling.style.backgroundColor = '#fff';
+        }
     }
     el.classList.remove('is-invalid');
 });
@@ -149,27 +153,19 @@ function editItem(id) {
         document.getElementById('drugDose').value = item.dose;
         document.getElementById('drugStartUnknown').checked = item.startUnknown;
 
-        // จัดการเรื่องปฏิทิน Flatpickr
-        if (drugStartPicker) {
-            drugStartPicker.setDate(item.start || '');
-        } else {
-            document.getElementById('drugStart').value = item.start || '';
-        }
+        if (drugStartPicker) drugStartPicker.setDate(item.start || '');
+        else document.getElementById('drugStart').value = item.start || '';
 
         document.getElementById('drugStart').disabled = item.startUnknown;
         document.getElementById('drugOngoing').checked = item.ongoing;
 
-        if (drugEndPicker) {
-            drugEndPicker.setDate(item.end || '');
-        } else {
-            document.getElementById('drugEnd').value = item.end || '';
-        }
+        if (drugEndPicker) drugEndPicker.setDate(item.end || '');
+        else document.getElementById('drugEnd').value = item.end || '';
 
         document.getElementById('drugEnd').disabled = item.ongoing;
         document.getElementById('btnDrugAdd').innerHTML = '💾 บันทึกการแก้ไข';
         document.getElementById('btnDrugCancel').style.display = 'inline-flex';
 
-        // โฟกัสและเลื่อนมาที่ช่อง "ชื่อยา" ให้อยู่กึ่งกลางจอ
         const targetElement = document.getElementById('drugName');
         targetElement.focus();
         targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -177,18 +173,13 @@ function editItem(id) {
     } else {
         document.getElementById('reactionName').value = item.rawName;
 
-        // จัดการเรื่องปฏิทิน Flatpickr สำหรับอาการแพ้
         const rxPicker = document.getElementById('reactionDate')._flatpickr;
-        if (rxPicker) {
-            rxPicker.setDate(item.start || '');
-        } else {
-            document.getElementById('reactionDate').value = item.start || '';
-        }
+        if (rxPicker) rxPicker.setDate(item.start || '');
+        else document.getElementById('reactionDate').value = item.start || '';
 
         document.getElementById('btnReactionAdd').innerHTML = '💾 บันทึกการแก้ไข';
         document.getElementById('btnReactionCancel').style.display = 'inline-flex';
 
-        // โฟกัสและเลื่อนมาที่ช่อง "อาการแพ้" ให้อยู่กึ่งกลางจอ
         const targetElement = document.getElementById('reactionName');
         targetElement.focus();
         targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -202,15 +193,13 @@ function cancelEdit() {
         el.value = ''; el.classList.remove('is-invalid');
     });
 
-    // เคลียร์ปฏิทิน
     if(drugStartPicker) drugStartPicker.clear();
     if(drugEndPicker) drugEndPicker.clear();
-    document.getElementById('reactionDate')._flatpickr.clear();
+    const rxPicker = document.getElementById('reactionDate')._flatpickr;
+    if(rxPicker) rxPicker.clear();
 
-    // รีเซ็ตสถานะปุ่ม
     ['drugOngoing','drugStartUnknown'].forEach(id => document.getElementById(id).checked = false);
 
-    // เปิดการใช้งาน Input ปฏิทินกลับมา
     const startEl = document.getElementById('drugStart');
     const endEl = document.getElementById('drugEnd');
     startEl.disabled = false;
@@ -252,11 +241,12 @@ function updateUI() {
 }
 
 function formatLongThaiDate(dateStr) {
-    if (!dateStr) return "วันที่ ......... ............................ พ.ศ. ...............";
+    if (!dateStr) return "วันที่ ......... เดือน ............................ ปี ...............";
     const d = new Date(dateStr);
     const months = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
-    return `วันที่จัดทำ ${d.getDate()} ${months[d.getMonth()]} พ.ศ. ${d.getFullYear() + 543}`;
+    return `วันที่ ${d.getDate()} เดือน ${months[d.getMonth()]} ปี ${d.getFullYear() + 543}`;
 }
+
 function formatShortThaiDate(dateStr) {
     if (!dateStr) return "-";
     const d = new Date(dateStr);
@@ -347,11 +337,25 @@ function wrapText(context, text, x, y, maxWidth, lineHeight, simulate = false) {
     return currentY;
 }
 
-// 🌟 ระบบวาด Timeline
+// 🌟 ระบบวาด Timeline อัปเดตใหม่ (รวมกลุ่มยา & โชว์ Dose บนเส้น)
 function drawTimeline() {
     const dpr = window.devicePixelRatio || 1;
-    const drugs = items.filter(i => i.type === 'drug');
+
+    const allDrugs = items.filter(i => i.type === 'drug');
     const reactions = items.filter(i => i.type === 'reaction');
+
+    // 🌟 จัดกลุ่มโดยใช้ "ชื่อยา" เท่านั้น (rawName) ไม่เอา Dose มาเกี่ยว
+    const groupedDrugs = {};
+    const uniqueDrugs = [];
+    allDrugs.forEach(drug => {
+        // ใช้ชื่อยาเพียวๆ เป็น Key จัดกลุ่ม
+        const groupName = drug.rawName.trim();
+        if (!groupedDrugs[groupName]) {
+            groupedDrugs[groupName] = [];
+            uniqueDrugs.push(groupName);
+        }
+        groupedDrugs[groupName].push(drug);
+    });
 
     canvas.width = A4_WIDTH * dpr;
     canvas.height = A4_HEIGHT * dpr;
@@ -362,11 +366,11 @@ function drawTimeline() {
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, A4_WIDTH, A4_HEIGHT);
 
-    // 1. วาด Header
+    // วาด Header
     const hName = document.getElementById('hospitalName').value.trim();
-    const pName = document.getElementById('patientName').value || ".................................................................................";
-    const pHN = document.getElementById('patientHN').value || "........................................";
-    const pAN = document.getElementById('patientAN').value || "......................................";
+    const pName = document.getElementById('patientName').value || "..................................................";
+    const pHN = document.getElementById('patientHN').value || "....................";
+    const pAN = document.getElementById('patientAN').value || "....................";
     const rDate = document.getElementById('reportDate').value;
     const pBy = document.getElementById('preparedBy').value;
 
@@ -385,27 +389,25 @@ function drawTimeline() {
     currentY += 30;
     ctx.fillText(`จัดทำโดย: ${pBy || "................................................................................"}`, 50, currentY);
 
-    // 🌟 ย้าย Legend ขึ้นมาไว้ตรงนี้
-    currentY += 0;
-    let currentX = 450;
+    // Legend
+    currentY += 25;
+    let currentX = 50;
     ctx.fillStyle="#475569"; ctx.font="bold 13px Sarabun, sans-serif"; ctx.fillText("หมายเหตุสัญลักษณ์:", currentX, currentY);
-    currentX += 120; drawCircle(currentX+5, currentY-5, false, "#3b82f6"); ctx.fillStyle="#475569"; ctx.font="13px Sarabun, sans-serif"; ctx.fillText("เริ่มยา", currentX+15, currentY);
-    currentX += 65; drawArrowLeft(currentX-10, currentY-5, "#3b82f6"); ctx.fillStyle="#475569"; ctx.fillText("ไม่สามารถระบุวันเริ่มได้", currentX+5, currentY);
-    currentX += 125; drawCircle(currentX+15, currentY-5, true, "#3b82f6"); ctx.fillStyle="#475569"; ctx.fillText("หยุดยา", currentX+25, currentY);
-    currentX += 65; drawArrowRight(currentX+15, currentY-5, "#3b82f6"); ctx.fillStyle="#475569"; ctx.fillText("กำลังใช้ยาอยู่", currentX+20, currentY);
-    currentX += 105; drawArrowDown(currentX+5, currentY-0, "#ef4444"); ctx.fillStyle="#ef4444"; ctx.fillText("วันที่เกิดอาการแพ้", currentX+15, currentY);
+    currentX += 120; drawCircle(currentX, currentY-5, false, "#3b82f6"); ctx.fillStyle="#475569"; ctx.font="13px Sarabun, sans-serif"; ctx.fillText("เริ่มยา", currentX+15, currentY);
+    currentX += 65; drawArrowLeft(currentX, currentY-5, "#3b82f6"); ctx.fillStyle="#475569"; ctx.fillText("เริ่มใช้มาก่อนหน้า", currentX+15, currentY);
+    currentX += 125; drawCircle(currentX, currentY-5, true, "#3b82f6"); ctx.fillStyle="#475569"; ctx.fillText("หยุดยา", currentX+15, currentY);
+    currentX += 65; drawArrowRight(currentX, currentY-5, "#3b82f6"); ctx.fillStyle="#475569"; ctx.fillText("กำลังใช้ยาต่อ", currentX+15, currentY);
+    currentX += 105; drawArrowDown(currentX, currentY-5, "#ef4444"); ctx.fillStyle="#ef4444"; ctx.fillText("วันที่เกิดอาการแพ้", currentX+15, currentY);
 
-    currentY += 20; // เพิ่มระยะห่างก่อนขีดเส้นใต้
+    currentY += 20;
     ctx.beginPath(); ctx.lineWidth = 1; ctx.strokeStyle = "#cbd5e1";
     ctx.moveTo(50, currentY); ctx.lineTo(A4_WIDTH-50, currentY); ctx.stroke();
 
     if (items.length === 0) return;
 
-    // 🌟 2. คำนวณพื้นที่และการปรับขนาด (Scaling Engine)
     const paddingTop = currentY + 40;
-    const maxAvailableHeight = A4_HEIGHT - paddingTop - 20; // ลดพื้นที่ขอบล่างเหลือ 20px เพราะย้าย Legend ไปแล้ว
+    const maxAvailableHeight = A4_HEIGHT - paddingTop - 20;
 
-    // ตั้งค่าเริ่มต้น (ขนาดมาตรฐาน)
     let globalScale = 1.0;
     let t_rowHeight = 45;
     let title_fontSize = 15;
@@ -421,10 +423,9 @@ function drawTimeline() {
 
     let spaceLeftForTimeline = maxAvailableHeight - idealAdrH - idealNoteH - 20;
 
-    if (spaceLeftForTimeline >= (drugs.length * 25)) {
-        t_rowHeight = Math.min(45, spaceLeftForTimeline / (drugs.length || 1));
+    if (spaceLeftForTimeline >= (uniqueDrugs.length * 25)) {
+        t_rowHeight = Math.min(45, spaceLeftForTimeline / (uniqueDrugs.length || 1));
     } else {
-        // ย่อส่วนร่วมกันทั้งหมด
         while (globalScale >= 0.4) {
             t_rowHeight = Math.max(16, 45 * globalScale);
             title_fontSize = Math.max(12, Math.floor(15 * globalScale));
@@ -433,7 +434,7 @@ function drawTimeline() {
             note_fontSize = Math.max(10, Math.floor(14 * globalScale));
             note_lineHeight = Math.floor(note_fontSize * 1.5);
 
-            let simTimelineH = (drugs.length * t_rowHeight);
+            let simTimelineH = (uniqueDrugs.length * t_rowHeight);
             let simAdrH = reactions.length > 0 ? (title_fontSize + 10) + (reactions.length * adr_lineHeight) : 0;
 
             ctx.font = `${note_fontSize}px Sarabun, sans-serif`;
@@ -447,9 +448,11 @@ function drawTimeline() {
     }
 
     const timeline_fontSize = t_rowHeight < 20 ? 11 : (t_rowHeight < 30 ? 12 : Math.max(12, Math.floor(14 * globalScale)));
-    const timelineBottom = paddingTop + (drugs.length * t_rowHeight);
+    // เพิ่มการปรับขนาดฟอนต์ของขนาดยา (Dose) ที่จะลอยอยู่บนเส้น
+    const dose_fontSize = Math.max(9, Math.floor(12 * globalScale));
 
-    // 3. เริ่มวาด Timeline ยา
+    const timelineBottom = paddingTop + (uniqueDrugs.length * t_rowHeight);
+
     let datePoints = [...new Set(items.flatMap(i => [i.start, i.end].filter(Boolean)))].sort();
     if(datePoints.length === 0) datePoints = [new Date().toISOString().split('T')[0]];
 
@@ -457,25 +460,25 @@ function drawTimeline() {
     const interval = chartW / (datePoints.length > 1 ? datePoints.length - 1 : 1);
     const getX = (d) => pLeft + (datePoints.indexOf(d) * interval);
 
-    // 🌟 เส้นประแนวตั้ง - ปรับให้สีเข้มขึ้น
+    // เส้นประแนวตั้ง
     datePoints.forEach(d => {
         const x = getX(d);
         ctx.setLineDash([4,4]);
-        ctx.strokeStyle="#94a3b8"; // สีเข้มขึ้นให้อ่านง่าย (Slate-400)
+        ctx.strokeStyle="#94a3b8";
         ctx.beginPath(); ctx.moveTo(x, paddingTop-10); ctx.lineTo(x, timelineBottom+20); ctx.stroke();
         ctx.setLineDash([]); ctx.fillStyle="#475569"; ctx.font="bold 13px Sarabun, sans-serif";
         ctx.fillText(formatShortThaiDate(d), x-25, paddingTop-20);
     });
 
-    drugs.forEach((drug, i) => {
+    // 🌟 วาดยาแบบ Grouping
+    uniqueDrugs.forEach((drugName, i) => {
         const y = paddingTop + (i * t_rowHeight) + t_rowHeight/2;
-        const xS = drug.startUnknown ? pLeft - 30 : getX(drug.start);
-        const lastX = getX(datePoints[datePoints.length-1]);
-        const xE = drug.ongoing ? Math.max(lastX + 40, A4_WIDTH - pRight + 30) : getX(drug.end);
 
+        // 1. วาดเฉพาะ "ชื่อยา" ด้านซ้ายสุด
         ctx.fillStyle="#1e293b";
-        ctx.font=`${timeline_fontSize}px Sarabun, sans-serif`;
-        let displayName = drug.name;
+        ctx.font=`bold ${timeline_fontSize}px Sarabun, sans-serif`; // ทำชื่อยาให้เป็นตัวหนา
+        ctx.textAlign = "left";
+        let displayName = drugName;
         const maxTextWidth = pLeft - 50;
         if (ctx.measureText(displayName).width > maxTextWidth) {
             while (ctx.measureText(displayName + "...").width > maxTextWidth && displayName.length > 0) {
@@ -485,13 +488,32 @@ function drawTimeline() {
         }
         ctx.fillText(displayName, 20, y+4);
 
-        ctx.beginPath(); ctx.lineWidth=3; ctx.strokeStyle="#3b82f6";
-        ctx.moveTo(xS, y); ctx.lineTo(xE, y); ctx.stroke();
+        // 2. วาดเส้น Timeline และ "ขนาดยา (Dose)"
+        const drugInstances = groupedDrugs[drugName];
+        drugInstances.forEach(drug => {
+            const xS = drug.startUnknown ? pLeft - 30 : getX(drug.start);
+            const lastX = getX(datePoints[datePoints.length-1]);
+            const xE = drug.ongoing ? Math.max(lastX + 40, A4_WIDTH - pRight + 30) : getX(drug.end);
 
-        if (drug.startUnknown) drawArrowLeft(xS, y, "#3b82f6"); else drawCircle(xS, y, false, "#3b82f6");
-        if (drug.ongoing) drawArrowRight(xE, y, "#3b82f6"); else drawCircle(xE, y, true, "#3b82f6");
+            ctx.beginPath(); ctx.lineWidth=3; ctx.strokeStyle="#3b82f6";
+            ctx.moveTo(xS, y); ctx.lineTo(xE, y); ctx.stroke();
+
+            if (drug.startUnknown) drawArrowLeft(xS, y, "#3b82f6"); else drawCircle(xS, y, false, "#3b82f6");
+            if (drug.ongoing) drawArrowRight(xE, y, "#3b82f6"); else drawCircle(xE, y, true, "#3b82f6");
+
+            // 🌟 3. วาด Dose ลอยเหนือเส้นกึ่งกลางของ Timeline
+            if (drug.dose) {
+                const midX = (xS + xE) / 2; // หาจุดกึ่งกลางของเส้นช่วงนี้
+                ctx.fillStyle = "#1d4ed8"; // สีน้ำเงินเข้มให้เห็นชัด (Blue-700)
+                ctx.font = `${dose_fontSize}px Sarabun, sans-serif`;
+                ctx.textAlign = "center"; // จัดข้อความให้อยู่กึ่งกลางพิกัด
+                ctx.fillText(drug.dose, midX, y - 6); // ลอยเหนือเส้น 6px
+                ctx.textAlign = "left"; // คืนค่าเริ่มต้นให้ Canvas
+            }
+        });
     });
 
+    // วาดอาการแพ้
     reactions.forEach((rx, i) => {
         const x = getX(rx.start); ctx.strokeStyle="#ef4444"; ctx.lineWidth=2;
         ctx.beginPath(); ctx.moveTo(x, paddingTop-10); ctx.lineTo(x, timelineBottom+30); ctx.stroke();
@@ -499,23 +521,23 @@ function drawTimeline() {
         ctx.fillText(`(R${i+1})`, x-12, timelineBottom+50);
     });
 
-    // 4. วาดส่วนท้าย (ADR และ Note)
+    // วาดส่วนท้าย (ADR และ Note)
     let currentBottomY = timelineBottom + 65;
 
     if (reactions.length > 0) {
         ctx.fillStyle="#1e293b"; ctx.font=`bold ${title_fontSize}px Sarabun, sans-serif`;
-        ctx.fillText("สรุปลำดับเหตุการณ์อาการไม่พึงประสงค์ (ADR):", 20, currentBottomY-5);
+        ctx.fillText("สรุปลำดับเหตุการณ์อาการไม่พึงประสงค์ (ADR):", 20, currentBottomY);
         reactions.forEach((rx, i) => {
             ctx.font=`${adr_fontSize}px Sarabun, sans-serif`; ctx.fillStyle="#b91c1c";
-            ctx.fillText(`R${i+1}: ${rx.name} (${formatShortThaiDate(rx.start)})`, 40, currentBottomY + (title_fontSize + 5) + (i*adr_lineHeight));
+            ctx.fillText(`R${i+1}: ${rx.name} (${formatLongThaiDate(rx.start)})`, 40, currentBottomY + (title_fontSize + 5) + (i*adr_lineHeight));
         });
         currentBottomY += (title_fontSize + 10) + (reactions.length * adr_lineHeight);
     }
 
     if (noteText) {
-        currentBottomY += -5;
+        currentBottomY += 10;
         ctx.fillStyle="#1e293b"; ctx.font=`bold ${title_fontSize}px Sarabun, sans-serif`;
-        ctx.fillText("Pharmacist Note", 20, currentBottomY);
+        ctx.fillText("Pharmacist Note / Clinical Comment:", 20, currentBottomY);
         ctx.font=`${note_fontSize}px Sarabun, sans-serif`; ctx.fillStyle="#334155";
 
         currentBottomY = wrapText(ctx, noteText, 40, currentBottomY + (title_fontSize + 5), A4_WIDTH - 80, note_lineHeight, false);
@@ -624,16 +646,16 @@ function loadDataFromFile(event) {
 }
 
 const naranjoQuestions = [
-    { q: "1. เคยมีการสรุปหรือรายงานปฏิกิริยานี้กับยาชนิดนี้มาแล้วหรือไม่?", scores: [1, 0, 0] },
-    { q: "2. อาการไม่พึงประสงค์นี้เกิดขึ้นหลังจากได้รับยาที่คิดว่าเป็นสาเหตุหรือไม่?", scores: [2, -1, 0] },
-    { q: "3. อาการไม่พึงประสงค์นี้ดีขึ้นเมื่อหยุดยาดังกล่าว หรือเมื่อให้ยาต้านที่เฉพาะเจาะจง (specific antagonist) หรือไม่?", scores: [1, 0, 0] },
-    { q: "4. อาการไม่พึงประสงค์ดังกล่าวเกิดขึ้นอีกเมื่อเริ่มให้ยาใหม่หรือไม่?", scores: [2, -1, 0] },
-    { q: "5. มปฏิกิริยาที่เกิดขึ้นสามารถเกิดจากสาเหตุอื่น (นอกเหนือจากยา) ของผู้ป่วยได้หรือไม่?", scores: [-1, 2, 0] },
-    { q: "6. ปฏิกิริยาดังกล่าวเกิดขึ้นอีก เมื่อให้ยาหลอกหรือไม่?", scores: [-1, 1, 0] },
-    { q: "7. สามารถตรวจวัดปริมาณยาได้ในเลือด (หรือของเหลวอื่น) ในปริมาณความเข้มข้นที่เป็นพิษหรือไม่?", scores: [1, 0, 0] },
-    { q: "8. ปฏิกิริยารุนแรงขึ้น เมื่อเพิ่มขนาดยาหรือลดความรุนแรงลงเมื่อลดขนาดยาหรือไม่?", scores: [1, 0, 0] },
-    { q: "9. ผู้ป่วยเคยมีปฏิกิริยาเหมือนหรือคล้ายคลึงกันนี้มาก่อนในการได้รับยาครั้งก่อนๆ หรือไม่?", scores: [1, 0, 0] },
-    { q: "10. อาการไม่พึงประสงค์นี้ ได้รับการยืนยันโดยมีผลปฏิบัติการหรือผลจากการตรวจสอบอื่นๆยืนยัน (objective evidence)?", scores: [1, 0, 0] }
+    { q: "1. มีรายงานการเกิดปฏิกิริยานี้มาก่อนหรือไม่?", scores: [1, 0, 0] },
+    { q: "2. อาการไม่พึงประสงค์นี้เกิดขึ้นหลังจากได้รับยาที่สงสัยใช่หรือไม่?", scores: [2, -1, 0] },
+    { q: "3. อาการดีขึ้นเมื่อหยุดยา หรือเมื่อได้รับยาต้านฤทธิ์เฉพาะ (Antagonist) ใช่หรือไม่?", scores: [1, 0, 0] },
+    { q: "4. อาการไม่พึงประสงค์นี้เกิดขึ้นซ้ำอีกเมื่อกลับมาใช้ยานี้ใหม่ใช่หรือไม่?", scores: [2, -1, 0] },
+    { q: "5. มีสาเหตุอื่นที่อาจทำให้เกิดอาการนี้ได้ด้วยตัวเองนอกเหนือจากยาใช่หรือไม่?", scores: [-1, 2, 0] },
+    { q: "6. อาการปรากฏขึ้นอีกเมื่อให้ยาหลอก (Placebo) ใช่หรือไม่?", scores: [-1, 1, 0] },
+    { q: "7. ตรวจพบยาในเลือด (หรือของเหลวอื่น) ในระดับที่เป็นพิษใช่หรือไม่?", scores: [1, 0, 0] },
+    { q: "8. อาการรุนแรงขึ้นเมื่อเพิ่มขนาดยา หรือลดลงเมื่อลดขนาดยาใช่หรือไม่?", scores: [1, 0, 0] },
+    { q: "9. ผู้ป่วยเคยมีประวัติแพ้ยาหรือมีปฏิกิริยากับยานี้ หรือยาที่คล้ายกันมาก่อนใช่หรือไม่?", scores: [1, 0, 0] },
+    { q: "10. อาการไม่พึงประสงค์ได้รับการยืนยันด้วยหลักฐานทางวัตถุวิสัย (Objective evidence) ใช่หรือไม่?", scores: [1, 0, 0] }
 ];
 
 function formatScore(score) { return score > 0 ? `(+${score})` : `(${score})`; }
