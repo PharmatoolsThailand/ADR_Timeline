@@ -44,6 +44,10 @@ h1, h2, h3 { margin-top: 0; color: var(--dark); }
 .danger-card { border-top: 4px solid var(--danger); }
 
 /* Forms */
+.full-width {
+    grid-column: 0 / -1;
+}
+
 .header-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
 .form-group { display: flex; flex-direction: column; gap: 6px; }
 .form-group label { font-size: 14px; font-weight: 600; color: var(--dark); }
