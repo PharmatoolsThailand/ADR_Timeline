@@ -529,7 +529,7 @@ function drawTimeline() {
         ctx.fillText("สรุปลำดับเหตุการณ์อาการไม่พึงประสงค์ (ADR):", 10, currentBottomY);
         reactions.forEach((rx, i) => {
             ctx.font=`${adr_fontSize}px Sarabun, sans-serif`; ctx.fillStyle="#b91c1c";
-            ctx.fillText(`R${i+1}: ${rx.name} (${formatLongThaiDate(rx.start)})`, 40, currentBottomY + (title_fontSize + 5) + (i*adr_lineHeight));
+            ctx.fillText(`R${i+1}: ${rx.name} (${formatShortThaiDate(rx.start)})`, 40, currentBottomY + (title_fontSize + 5) + (i*adr_lineHeight));
         });
         currentBottomY += (title_fontSize + 10) + (reactions.length * adr_lineHeight);
     }
