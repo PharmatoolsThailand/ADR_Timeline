@@ -79,8 +79,30 @@ input:disabled { background-color: #f1f5f9; color: #94a3b8; cursor: not-allowed;
 .btn-outline { background-color: transparent; border: 1px solid var(--border); color: var(--dark); }
 .btn-outline:hover { background-color: var(--light-bg); }
 .btn-gray { background-color: var(--gray); color: white; }
-.btn-text-danger { background-color: transparent; color: var(--danger); text-decoration: underline; }
-.btn-text-danger:hover { background-color: #fef2f2; box-shadow: none; }
+/* =========================================
+   ปุ่มล้างหน้าจอ (สไตล์ Modern Soft Danger)
+   ========================================= */
+.btn-text-danger {
+    background-color: #fef2f2; /* พื้นหลังสีแดงอ่อนมากๆ ให้ดูซอฟต์ */
+    color: #ef4444; /* ตัวอักษรสีแดง */
+    border: 1px solid #fca5a5; /* กรอบสีแดงอ่อนให้ดูมีมิติ */
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease; /* ทำให้เอฟเฟกต์นุ่มนวลขึ้น */
+}
+
+.btn-text-danger:hover {
+    background-color: #ef4444; /* สลับพื้นหลังเป็นสีแดงเข้ม */
+    color: #ffffff; /* สลับตัวอักษรเป็นสีขาว */
+    border-color: #ef4444;
+    box-shadow: 0 6px 12px -2px rgba(239, 68, 68, 0.25); /* เพิ่มเงาสีแดงเรืองแสงนิดๆ */
+    transform: translateY(-2px); /* เอฟเฟกต์ปุ่มลอยขึ้นเวลานำเมาส์ไปชี้ */
+}
+
+.btn-text-danger:active {
+    transform: translateY(0); /* พอกดคลิกให้ปุ่มยุบลงไป */
+    box-shadow: none;
+}
 .btn-action { padding: 6px 12px; font-size: 12px; border-radius: 4px; }
 .btn-edit { background-color: #f59e0b; color: white; border: none; cursor: pointer; }
 .btn-del { background-color: #ef4444; color: white; border: none; cursor: pointer; }
@@ -99,7 +121,7 @@ input:disabled { background-color: #f1f5f9; color: #94a3b8; cursor: not-allowed;
 .badge-rx { background-color: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
 
 /* Toolbar (Sticky) */
-.toolbar-sticky { display: flex; justify-content: space-between; align-items: center; background: white; padding: 15px 20px; border-radius: 10px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); position: sticky; top: 10px; z-index: 100; border: 1px solid var(--border); margin-top: 20px; flex-wrap: wrap; gap: 15px; }
+.toolbar-sticky { display: flex; justify-content: space-between; align-items: center; background: white; padding: 15px 20px; border-radius: 10px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); top: 10px; z-index: 100; border: 1px solid var(--border); margin-top: 20px; flex-wrap: wrap; gap: 15px; }
 .toolbar-left, .toolbar-right { display: flex; gap: 10px; }
 
 /* Canvas */
@@ -190,4 +212,111 @@ canvas { background-color: white; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); 
     .app-footer {
         display: none !important;
     }
+}
+
+/* =========================================
+   Naranjo Mobile Responsive (ปรับขนาดตารางดั้งเดิม)
+   ========================================= */
+@media (max-width: 768px) {
+    /* ขยายพื้นที่ Modal ในหน้าจอมือถือให้กว้างที่สุด */
+    .modal-content {
+        width: 98%;
+        padding: 15px;
+        margin: 5% auto;
+    }
+
+    /* ปลดล็อคความกว้างขั้นต่ำ (ลบการบังคับ 700px ออก) ให้ตารางหดตามหน้าจอ */
+    .naranjo-table.modern-table {
+        min-width: 100% !important;
+    }
+
+    /* ลดระยะห่างภายในเซลล์ (Padding) เพื่อประหยัดพื้นที่ซ้าย-ขวา */
+    .naranjo-table th, .naranjo-table td {
+        padding: 8px 4px;
+    }
+
+    /* ตั้งค่าคอลัมน์แรก (คำถาม) ให้ข้อความสามารถปัดขึ้นบรรทัดใหม่ได้ */
+    .naranjo-table td:first-child {
+        white-space: normal !important; /* อนุญาตให้ขึ้นบรรทัดใหม่ */
+        word-wrap: break-word;
+        font-size: 13px; /* ลดขนาดฟอนต์คำถามลงเล็กน้อย */
+        line-height: 1.4;
+    }
+
+    /* ลดขนาดฟอนต์และปรับความกว้างคอลัมน์ตัวเลือก (ใช่/ไม่ใช่/ไม่ทราบ) */
+    .naranjo-table th:not(:first-child),
+    .naranjo-table td:not(:first-child) {
+        width: 50px !important; /* บีบคอลัมน์ตัวเลือกให้แคบลง */
+    }
+
+    .naranjo-table th {
+        font-size: 11px;
+        padding: 8px 2px;
+    }
+
+    /* ซ่อนข้อความกำกับคะแนน (+1, 0, -1) ในมือถือเพื่อประหยัดพื้นที่ (ถ้าต้องการ) */
+    .score-hint {
+        display: none;
+    }
+
+    /* จัดกลุ่มคะแนนรวมด้านล่างให้อยู่ตรงกลาง */
+    .naranjo-footer {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .naranjo-legend {
+        justify-content: center;
+    }
+
+    .result-box {
+        text-align: center;
+        width: 100%;
+        background-color: #f8fafc;
+        padding: 10px;
+        border-radius: 8px;
+    }
+}
+
+/* =========================================
+   ระบบดูรูปภาพเต็มจอ (Image Viewer)
+   ========================================= */
+.image-modal {
+    background-color: rgba(15, 23, 42, 0.95); /* พื้นหลังสีเข้มเกือบดำ */
+    padding-top: 40px;
+    z-index: 1500; /* ให้อยู่หน้าสุด */
+}
+
+.image-modal-content {
+    margin: auto;
+    display: block;
+    width: 95%;
+    max-width: 1200px;
+    overflow-x: auto; /* ให้ใช้นิ้วเลื่อนซ้ายขวาได้ */
+    text-align: center;
+}
+
+.image-modal-content img {
+    background-color: white;
+    border-radius: 4px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    max-width: 100%;
+    height: auto;
+    cursor: zoom-in; /* เปลี่ยนเคอร์เซอร์เป็นแว่นขยาย */
+}
+
+.close-image {
+    position: absolute;
+    top: 15px;
+    right: 25px;
+    color: #f1f1f1;
+    font-size: 40px;
+    font-weight: bold;
+    cursor: pointer;
+    z-index: 1501;
+    transition: color 0.2s;
+}
+
+.close-image:hover {
+    color: #ef4444;
 }

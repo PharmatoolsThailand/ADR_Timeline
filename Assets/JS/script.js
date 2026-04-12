@@ -339,7 +339,7 @@ function wrapText(context, text, x, y, maxWidth, lineHeight, simulate = false) {
 
 // 🌟 ระบบวาด Timeline อัปเดตใหม่ (รวมกลุ่มยา & โชว์ Dose บนเส้น)
 function drawTimeline() {
-    const dpr = window.devicePixelRatio || 1;
+    const dpr = 2;
 
     const allDrugs = items.filter(i => i.type === 'drug');
     const reactions = items.filter(i => i.type === 'reaction');
@@ -406,7 +406,7 @@ function drawTimeline() {
     if (items.length === 0) return;
 
     const paddingTop = currentY + 40;
-    const maxAvailableHeight = A4_HEIGHT - paddingTop - 20;
+    const maxAvailableHeight = A4_HEIGHT - paddingTop - 25;
 
     let globalScale = 1.0;
     let t_rowHeight = 45;
@@ -526,7 +526,7 @@ function drawTimeline() {
 
     if (reactions.length > 0) {
         ctx.fillStyle="#1e293b"; ctx.font=`bold ${title_fontSize}px Sarabun, sans-serif`;
-        ctx.fillText("สรุปลำดับเหตุการณ์อาการไม่พึงประสงค์ (ADR):", 20, currentBottomY);
+        ctx.fillText("สรุปลำดับเหตุการณ์อาการไม่พึงประสงค์ (ADR):", 10, currentBottomY);
         reactions.forEach((rx, i) => {
             ctx.font=`${adr_fontSize}px Sarabun, sans-serif`; ctx.fillStyle="#b91c1c";
             ctx.fillText(`R${i+1}: ${rx.name} (${formatLongThaiDate(rx.start)})`, 40, currentBottomY + (title_fontSize + 5) + (i*adr_lineHeight));
@@ -535,9 +535,9 @@ function drawTimeline() {
     }
 
     if (noteText) {
-        currentBottomY += 10;
+        currentBottomY += -5;
         ctx.fillStyle="#1e293b"; ctx.font=`bold ${title_fontSize}px Sarabun, sans-serif`;
-        ctx.fillText("Pharmacist Note / Clinical Comment:", 20, currentBottomY);
+        ctx.fillText("Pharmacist Note", 10, currentBottomY);
         ctx.font=`${note_fontSize}px Sarabun, sans-serif`; ctx.fillStyle="#334155";
 
         currentBottomY = wrapText(ctx, noteText, 40, currentBottomY + (title_fontSize + 5), A4_WIDTH - 80, note_lineHeight, false);
@@ -555,9 +555,21 @@ async function exportPDF() {
 
     const { jsPDF } = window.jspdf;
     const pdf = new jsPDF('l', 'px', [A4_WIDTH, A4_HEIGHT]);
-    const imgData = canvas.toDataURL('image/jpeg', 1.0);
+    const imgData = canvas.toDataURL('image/png');
 
-    pdf.addImage(imgData, 'JPEG', 0, 0, A4_WIDTH, A4_HEIGHT);
+    // --- ส่วนที่ปรับแก้: แยกกำหนดระยะขอบแต่ละด้าน ---
+    const marginLeft = 15;
+    const marginRight = 15;
+    const marginTop = 15;
+    const marginBottom = 15;
+
+    // คำนวณความกว้างและความสูงใหม่ที่หักลบขอบซ้าย-ขวา และ บน-ล่าง แล้ว
+    const printWidth = A4_WIDTH - marginLeft - marginRight;
+    const printHeight = A4_HEIGHT - marginTop - marginBottom;
+
+    // วางรูปลง PDF โดยเริ่มวาดที่พิกัด X (ซ้าย), Y (บน)
+    pdf.addImage(imgData, 'PNG', marginLeft, marginTop, printWidth, printHeight);
+    // ---------------------------------------------
 
     const pName = document.getElementById('patientName').value.trim();
     const pHN = document.getElementById('patientHN').value.trim();
@@ -690,3 +702,30 @@ function calculateNaranjo() {
     levelEl.innerText = `${level}`;
     levelEl.style.color = color;
 }
+
+// =========================================
+// ฟังก์ชันดูรูปเต็มจอ (Fullscreen Image)
+// =========================================
+function openFullscreen() {
+    if (items.length === 0) return alert('ยังไม่มีข้อมูลยาหรืออาการแพ้สำหรับแสดงผลครับ');
+
+    // แปลง Canvas เป็นรูปภาพ PNG แบบคมชัด
+    const dataURL = canvas.toDataURL("image/png");
+    const imgElement = document.getElementById("expandedImg");
+    imgElement.src = dataURL;
+
+    // แสดง Modal
+    document.getElementById("imageModal").style.display = "block";
+}
+
+function closeFullscreen() {
+    document.getElementById("imageModal").style.display = "none";
+}
+
+// ปิดรูปภาพเมื่อคลิกที่พื้นที่สีดำรอบๆ รูประหว่างที่เปิดอยู่
+window.addEventListener('click', function(e) {
+    const imgModal = document.getElementById('imageModal');
+    if (e.target === imgModal) {
+        closeFullscreen();
+    }
+});

@@ -162,10 +162,22 @@
         </div>
 
         <section class="display-section mt-3">
+            <div class="d-flex-between mb-2">
+                <h3 style="margin: 0; color: #475569; font-size: 16px;">🖼️ ตัวอย่างเอกสาร</h3>
+                <button onclick="openFullscreen()" class="btn btn-outline" style="padding: 6px 12px; font-size: 13px;">🔍 ขยายดูแบบเต็มจอ</button>
+            </div>
+
             <div class="canvas-container">
                 <canvas id="timelineCanvas"></canvas>
             </div>
         </section>
+
+        <div id="imageModal" class="modal image-modal">
+            <span class="close-image" onclick="closeFullscreen()">&times;</span>
+            <div class="image-modal-content">
+                <img id="expandedImg" alt="Timeline Fullscreen">
+            </div>
+        </div>
 
         <hr class="divider">
         <section class="tools-section">
