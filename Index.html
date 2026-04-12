@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drug Timeline Generator | ระบบสร้างไทม์ไลน์การใช้ยา</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="Assets/CSS/style.css">
+</head>
+<body>
+    <div class="container">
+        <header class="main-header">
+            <h1>💊 Drug Exposure & ADR Timeline</h1>
+            <p class="subtitle">เครื่องมือช่วยสร้างไทม์ไลน์ประวัติการใช้ยาและเหตุการณ์ไม่พึงประสงค์ (พร้อมพิมพ์ A4)</p>
+        </header>
+
+        <section class="input-section">
+            <div class="card shadow">
+                <div class="card-header">
+                    <h3>📄 1. ข้อมูลทั่วไปของผู้ป่วย </h3>
+                </div>
+                <div class="header-form-grid">
+                    <div class="form-group">
+                        <label>ชื่อโรงพยาบาล / สถานพยาบาล:</label>
+                        <div class="input-row">
+                            <input type="text" id="hospitalName" placeholder="เช่น โรงพยาบาล..........">
+                            <button onclick="saveHospital()" class="btn btn-outline" title="บันทึกชื่อ รพ. ไว้ใช้ครั้งต่อไป">💾 ตั้งเป็นค่าเริ่มต้น</button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>ชื่อ-นามสกุล ผู้ป่วย:</label>
+                        <input type="text" id="patientName" placeholder="ระบุชื่อและนามสกุลของผู้ป่วย (เว้นว่างไว้เพื่อเขียนมือ)">
+                    </div>
+                    <div class="input-row">
+                        <div class="form-group" style="flex: 1;">
+                            <label>Hospital Number (HN):</label>
+                            <input type="text" id="patientHN" placeholder="ระบุ HN (เว้นว่างไว้เพื่อเขียนมือ)">
+                        </div>
+                        <div class="form-group" style="flex: 1;">
+                            <label>Admission Number (AN):</label>
+                            <input type="text" id="patientAN" placeholder="ระบุ AN (เว้นว่างไว้เพื่อเขียนมือ)">
+                        </div>
+                    </div>
+                    <div class="input-row">
+                        <div class="form-group" style="flex: 1;">
+                            <label>วันที่จัดทำประวัติ:</label>
+                            <input type="date" id="reportDate">
+                        </div>
+                        <div class="form-group" style="flex: 1;">
+                            <label>เภสัชกรผู้ประเมิน / ผู้จัดทำ:</label>
+                            <input type="text" id="preparedBy" placeholder="ระบุชื่อผู้จัดทำ (เว้นว่างไว้เพื่อเขียนมือ)">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-grid">
+                <div class="card shadow highlight-card">
+                    <div class="card-header">
+                        <h3>💊 2. บันทึกประวัติการใช้ยา</h3>
+                    </div>
+                    <div class="form-group">
+                        <label>ชื่อยา และ ขนาดการใช้:<span class="req-mark">*</span></label>
+                        <div class="input-row">
+                            <input type="text" id="drugName" placeholder="ชื่อยา (เช่น Amoxicillin)" style="flex: 2;">
+                            <input type="text" id="drugDose" placeholder="Dose (เช่น 1g IV v 24 hr) (ถ้ามี)" style="flex: 1.5;">
+                        </div>
+
+                        <div class="date-row mt-2">
+                            <div class="form-group" style="flex: 1;">
+                                <label>วันที่เริ่มใช้ยา (Start):<span class="req-mark">*</span></label>
+                                <input type="date" id="drugStart">
+                            </div>
+                            <div class="form-group" style="flex: 1;">
+                                <label>วันที่หยุดยา (Off):<span class="req-mark">*</span></label>
+                                <input type="date" id="drugEnd">
+                            </div>
+                        </div>
+
+                        <div class="checkbox-row alert-box bg-light">
+                            <label class="custom-checkbox text-orange">
+                                <input type="checkbox" id="drugStartUnknown">
+                                <span><b>ไม่ระบุวันเริ่ม หรือไม่ทราบวันเริ่มยา</b> (ยาเดิมที่ผู้ป่วยใช้มานานแล้ว)</span>
+                            </label>
+                            <label class="custom-checkbox text-green">
+                                <input type="checkbox" id="drugOngoing">
+                                <span><b>ปัจจุบันยังใช้อยู่</b></span>
+                            </label>
+                        </div>
+
+                        <div class="action-buttons mt-2">
+                            <button id="btnDrugAdd" onclick="addItem('drug')" class="btn btn-primary">➕ เพิ่มรายการยานี้ลงตาราง</button>
+                            <button id="btnDrugCancel" onclick="cancelEdit()" class="btn btn-gray" style="display: none;">❌ ยกเลิกการแก้ไข</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card shadow danger-card">
+                    <div class="card-header">
+                        <h3>⚠️ 3. บันทึกเหตุการณ์ / อาการแพ้ (ADR)</h3>
+                    </div>
+                    <div class="form-group">
+                        <label>ลักษณะอาการไม่พึงประสงค์ที่ตรวจพบ:</label>
+                        <input type="text" id="reactionName" placeholder="ระบุอาการของผู้ป่วย เช่น Maculopapular rash">
+
+                        <label class="mt-2">วันที่เริ่มปรากฏอาการ:</label>
+                        <input type="date" id="reactionDate">
+
+                        <div class="action-buttons mt-2">
+                            <button id="btnReactionAdd" onclick="addItem('reaction')" class="btn btn-danger">➕ บันทึกอาการแพ้</button>
+                            <button id="btnReactionCancel" onclick="cancelEdit()" class="btn btn-gray" style="display: none;">❌ ยกเลิก</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow">
+                <div class="card-header">
+                    <h3>📝 4. บันทึกความเห็น (Pharmacist Note)</h3>
+                    <small class="text-muted">ข้อมูลส่วนนี้จะถูกนำไปแสดงผลบริเวณด้านล่างของหน้ากระดาษ A4</small>
+                </div>
+                <div class="form-group mt-1">
+                    <textarea id="pharmaNote" rows="3" placeholder="พิมพ์ข้อเสนอแนะ, ผลแล็บที่เกี่ยวข้อง, หรือแผนการดูแลผู้ป่วย ..."></textarea>
+                </div>
+            </div>
+
+            <div class="card shadow">
+                <div class="card-header d-flex-between">
+                    <h3>📋 รายการข้อมูลที่บันทึกแล้ว</h3>
+                </div>
+                <div class="table-responsive">
+                    <table id="itemTable" class="modern-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 10%;">ประเภท</th>
+                                <th style="width: 40%;">รายการ (ชื่อยา / อาการ)</th>
+                                <th style="width: 20%;">วันเริ่มต้น</th>
+                                <th style="width: 20%;">วันสิ้นสุด</th>
+                                <th style="width: 10%; text-align: center;">จัดการ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="itemTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <div class="toolbar-sticky">
+            <div class="toolbar-left">
+                <input type="file" id="fileInput" accept=".json" style="display: none;" onchange="loadDataFromFile(event)">
+                <button onclick="triggerFileInput()" class="btn btn-purple">📂 เปิดไฟล์เดิม</button>
+                <button onclick="saveDataToFile()" class="btn btn-dark">💾 เซฟงานเก็บไว้</button>
+            </div>
+            <div class="toolbar-right">
+                <button onclick="clearAll()" class="btn btn-text-danger">🗑️ ล้างหน้าจอ</button>
+                <button onclick="exportPDF()" class="btn btn-success" style="font-size: 16px;">⬇️ ดาวน์โหลด PDF เพื่อพิมพ์</button>
+            </div>
+        </div>
+
+        <section class="display-section mt-3">
+            <div class="canvas-container">
+                <canvas id="timelineCanvas"></canvas>
+            </div>
+        </section>
+
+        <hr class="divider">
+        <section class="tools-section">
+            <div class="center-text">
+                <h3>🛠️ เครื่องมือประเมินทางเภสัชกรรมเพิ่มเติม</h3>
+                <p class="text-muted mb-2">ใช้สำหรับประเมินความสัมพันธ์ระหว่างยากับอาการไม่พึงประสงค์</p>
+                <button onclick="openNaranjo()" class="btn btn-naranjo">📋 เปิดแบบประเมิน Naranjo Algorithm</button>
+            </div>
+        </section>
+    </div>
+
+    <div id="naranjoModal" class="modal">
+        <div class="modal-content shadow-lg">
+            <span class="close" onclick="closeNaranjo()">&times;</span>
+            <h2 style="color: #2c3e50; margin-bottom: 5px;">Naranjo Algorithm</h2>
+            <p class="text-muted mb-3">แบบประเมินโอกาสการเกิดอาการไม่พึงประสงค์จากยา (ADR Probability Scale)</p>
+            <div class="naranjo-table-container">
+                <table class="naranjo-table modern-table">
+                    <thead>
+                        <tr>
+                            <th>คำถามพิจารณา (Question)</th>
+                            <th style="width: 80px; text-align: center;">ใช่</th>
+                            <th style="width: 80px; text-align: center;">ไม่ใช่</th>
+                            <th style="width: 80px; text-align: center;">ไม่ทราบ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="naranjoBody"></tbody>
+                </table>
+            </div>
+            <div class="naranjo-footer d-flex-between align-center mt-3">
+                <div class="naranjo-legend">
+                    <div class="legend-item"><span style="color:#c0392b; font-weight:bold;">&ge; 9</span> ใช่แน่ (Definite)</div>
+                    <div class="legend-item"><span style="color:#d35400; font-weight:bold;">5-8</span> น่าจะใช่ (Probable)</div>
+                    <div class="legend-item"><span style="color:#f39c12; font-weight:bold;">1-4</span> อาจจะใช่ (Possible)</div>
+                    <div class="legend-item"><span style="color:#7f8c8d; font-weight:bold;">&le; 0</span> น่าสงสัย (Doubtful)</div>
+                </div>
+                <div class="result-box text-right">
+                    <h3 id="naranjoTotal">คะแนนรวม: 0</h3>
+                    <p id="naranjoLevel" class="result-level">ระดับความน่าจะเป็น: -</p>
+                </div>
+            </div>
+        </div>
+    </div> <footer class="app-footer">
+        <div class="footer-content">
+            <p> พัฒนาและออกแบบโดย: <span class="developer-name">นายระพีพัฒน์ ศุภโกศล</span> จบการศึกษาระดับปริญาตรี คณะเภสัชศาสตร์ มหาวิทยาลัยมหาสารคาม</p>
+            <p class="footer-subtext">เครื่องมือนี้สร้างขึ้นเพื่ออำนวยความสะดวกในการทำ Time line ประวัติการแพ้ยา</p>
+            <p class="footer-subtext">เวอร์ชัน 1.0 | สงวนลิขสิทธิ์ &copy; 2026</p>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="Assets/JS/script.js"></script>
+</body>
+</html>
