@@ -6,21 +6,43 @@ let editingId = null;
 const A4_WIDTH = 1123;
 const A4_HEIGHT = 794;
 
+// เก็บตัวแปรของปฏิทินไว้เผื่อต้องจัดการตอนกด Disable
+let drugStartPicker, drugEndPicker;
+
 window.onload = function() {
     const savedHosp = localStorage.getItem('savedHospitalName');
     if (savedHosp) document.getElementById('hospitalName').value = savedHosp;
-    document.getElementById('reportDate').valueAsDate = new Date();
+
+    // เอาโค้ด .valueAsDate = new Date() แบบเดิมออก เพราะเราจะใช้ Flatpickr จัดการแทน
 
     document.getElementById('pharmaNote').addEventListener('input', updateUI);
     document.fonts.ready.then(function() { updateUI(); });
-};
 
-function saveHospital() {
-    const name = document.getElementById('hospitalName').value.trim();
-    localStorage.setItem('savedHospitalName', name);
-    alert('บันทึกชื่อโรงพยาบาลเป็นค่าเริ่มต้นเรียบร้อยแล้วครับ');
-    updateUI();
-}
+    // ==========================================
+    // 🌟 ตั้งค่า Flatpickr สำหรับปฏิทิน (แก้ปัญหา iOS)
+    // ==========================================
+
+    const flatpickrConfig = {
+        locale: "th", // ใช้ภาษาไทย
+        dateFormat: "Y-m-d", // ฟอร์แมตวันที่ที่ระบบหลังบ้านใช้
+        disableMobile: "true", // 🚀 จุดสำคัญ! ปิดการใช้ UI ของ iOS/Android บังคับใช้ของเว็บแทน
+        altInput: true, // แสดงผลให้ผู้ใช้อ่านง่าย
+        altFormat: "j F Y", // รูปแบบที่แสดงให้คนดู เช่น 12 เมษายน 2026
+    };
+
+    // 1. วันที่จัดทำประวัติ (ตั้งค่าให้เป็นวันปัจจุบันอัตโนมัติ)
+    flatpickr("#reportDate", {
+        ...flatpickrConfig,
+        defaultDate: "today"
+    });
+
+    // 2. วันที่เกิดอาการแพ้
+    flatpickr("#reactionDate", flatpickrConfig);
+
+    // 3. วันที่เริ่มยา และ วันที่หยุดยา (เก็บตัวแปรไว้จัดการเปิด/ปิด)
+    drugStartPicker = flatpickr("#drugStart", flatpickrConfig);
+    drugEndPicker = flatpickr("#drugEnd", flatpickrConfig);
+};
 
 ['hospitalName', 'patientName', 'patientHN', 'patientAN', 'reportDate', 'preparedBy'].forEach(id => {
     document.getElementById(id).addEventListener('input', function() {
@@ -31,15 +53,32 @@ function saveHospital() {
 
 document.getElementById('drugOngoing').addEventListener('change', function() {
     const el = document.getElementById('drugEnd');
-    el.disabled = this.checked;
+    if (this.checked) {
+        drugEndPicker.clear(); // ล้างค่าวันที่ออก
+        el.disabled = true; // ปิดการพิมพ์
+        el.nextElementSibling.disabled = true; // ปิดปฏิทินของ Flatpickr
+        el.nextElementSibling.style.backgroundColor = '#f1f5f9';
+    } else {
+        el.disabled = false;
+        el.nextElementSibling.disabled = false;
+        el.nextElementSibling.style.backgroundColor = '#fff';
+    }
     el.classList.remove('is-invalid');
-    if (this.checked) el.value = '';
 });
+
 document.getElementById('drugStartUnknown').addEventListener('change', function() {
     const el = document.getElementById('drugStart');
-    el.disabled = this.checked;
+    if (this.checked) {
+        drugStartPicker.clear();
+        el.disabled = true;
+        el.nextElementSibling.disabled = true;
+        el.nextElementSibling.style.backgroundColor = '#f1f5f9';
+    } else {
+        el.disabled = false;
+        el.nextElementSibling.disabled = false;
+        el.nextElementSibling.style.backgroundColor = '#fff';
+    }
     el.classList.remove('is-invalid');
-    if (this.checked) el.value = '';
 });
 
 function markInvalid(elementId) {
@@ -134,8 +173,28 @@ function cancelEdit() {
         const el = document.getElementById(id);
         el.value = ''; el.classList.remove('is-invalid');
     });
+
+    // เคลียร์ปฏิทิน
+    if(drugStartPicker) drugStartPicker.clear();
+    if(drugEndPicker) drugEndPicker.clear();
+    document.getElementById('reactionDate')._flatpickr.clear();
+
+    // รีเซ็ตสถานะปุ่ม
     ['drugOngoing','drugStartUnknown'].forEach(id => document.getElementById(id).checked = false);
-    ['drugStart','drugEnd'].forEach(id => document.getElementById(id).disabled = false);
+
+    // เปิดการใช้งาน Input ปฏิทินกลับมา
+    const startEl = document.getElementById('drugStart');
+    const endEl = document.getElementById('drugEnd');
+    startEl.disabled = false;
+    if(startEl.nextElementSibling) {
+        startEl.nextElementSibling.disabled = false;
+        startEl.nextElementSibling.style.backgroundColor = '#fff';
+    }
+    endEl.disabled = false;
+    if(endEl.nextElementSibling) {
+        endEl.nextElementSibling.disabled = false;
+        endEl.nextElementSibling.style.backgroundColor = '#fff';
+    }
 
     document.getElementById('btnDrugAdd').innerHTML = '➕ เพิ่มรายการยานี้ลงตาราง';
     document.getElementById('btnReactionAdd').innerHTML = '➕ บันทึกอาการแพ้';
