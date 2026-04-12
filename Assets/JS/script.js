@@ -368,9 +368,9 @@ function drawTimeline() {
 
     // วาด Header
     const hName = document.getElementById('hospitalName').value.trim();
-    const pName = document.getElementById('patientName').value || "..................................................";
-    const pHN = document.getElementById('patientHN').value || "....................";
-    const pAN = document.getElementById('patientAN').value || "....................";
+    const pName = document.getElementById('patientName').value || "..................................................................................";
+    const pHN = document.getElementById('patientHN').value || ".........................................";
+    const pAN = document.getElementById('patientAN').value || ".......................................";
     const rDate = document.getElementById('reportDate').value;
     const pBy = document.getElementById('preparedBy').value;
 
@@ -390,14 +390,14 @@ function drawTimeline() {
     ctx.fillText(`จัดทำโดย: ${pBy || "................................................................................"}`, 50, currentY);
 
     // Legend
-    currentY += 25;
-    let currentX = 50;
+    currentY += 0;
+    let currentX = 450;
     ctx.fillStyle="#475569"; ctx.font="bold 13px Sarabun, sans-serif"; ctx.fillText("หมายเหตุสัญลักษณ์:", currentX, currentY);
-    currentX += 120; drawCircle(currentX, currentY-5, false, "#3b82f6"); ctx.fillStyle="#475569"; ctx.font="13px Sarabun, sans-serif"; ctx.fillText("เริ่มยา", currentX+15, currentY);
-    currentX += 65; drawArrowLeft(currentX, currentY-5, "#3b82f6"); ctx.fillStyle="#475569"; ctx.fillText("เริ่มใช้มาก่อนหน้า", currentX+15, currentY);
-    currentX += 125; drawCircle(currentX, currentY-5, true, "#3b82f6"); ctx.fillStyle="#475569"; ctx.fillText("หยุดยา", currentX+15, currentY);
-    currentX += 65; drawArrowRight(currentX, currentY-5, "#3b82f6"); ctx.fillStyle="#475569"; ctx.fillText("กำลังใช้ยาต่อ", currentX+15, currentY);
-    currentX += 105; drawArrowDown(currentX, currentY-5, "#ef4444"); ctx.fillStyle="#ef4444"; ctx.fillText("วันที่เกิดอาการแพ้", currentX+15, currentY);
+    currentX += 120; drawCircle(currentX+5, currentY-5, false, "#3b82f6"); ctx.fillStyle="#475569"; ctx.font="13px Sarabun, sans-serif"; ctx.fillText("เริ่มยา", currentX+15, currentY);
+    currentX += 65; drawArrowLeft(currentX-10, currentY-5, "#3b82f6"); ctx.fillStyle="#475569"; ctx.fillText("ไม่สามารถระบุวันเริ่มได้", currentX+5, currentY);
+    currentX += 125; drawCircle(currentX+15, currentY-5, true, "#3b82f6"); ctx.fillStyle="#475569"; ctx.fillText("หยุดยา", currentX+25, currentY);
+    currentX += 65; drawArrowRight(currentX+15, currentY-5, "#3b82f6"); ctx.fillStyle="#475569"; ctx.fillText("กำลังใช้ยาอยู่", currentX+20, currentY);
+    currentX += 105; drawArrowDown(currentX+5, currentY-0, "#ef4444"); ctx.fillStyle="#ef4444"; ctx.fillText("วันที่เกิดอาการแพ้", currentX+15, currentY);
 
     currentY += 20;
     ctx.beginPath(); ctx.lineWidth = 1; ctx.strokeStyle = "#cbd5e1";
@@ -646,16 +646,16 @@ function loadDataFromFile(event) {
 }
 
 const naranjoQuestions = [
-    { q: "1. มีรายงานการเกิดปฏิกิริยานี้มาก่อนหรือไม่?", scores: [1, 0, 0] },
-    { q: "2. อาการไม่พึงประสงค์นี้เกิดขึ้นหลังจากได้รับยาที่สงสัยใช่หรือไม่?", scores: [2, -1, 0] },
-    { q: "3. อาการดีขึ้นเมื่อหยุดยา หรือเมื่อได้รับยาต้านฤทธิ์เฉพาะ (Antagonist) ใช่หรือไม่?", scores: [1, 0, 0] },
-    { q: "4. อาการไม่พึงประสงค์นี้เกิดขึ้นซ้ำอีกเมื่อกลับมาใช้ยานี้ใหม่ใช่หรือไม่?", scores: [2, -1, 0] },
-    { q: "5. มีสาเหตุอื่นที่อาจทำให้เกิดอาการนี้ได้ด้วยตัวเองนอกเหนือจากยาใช่หรือไม่?", scores: [-1, 2, 0] },
-    { q: "6. อาการปรากฏขึ้นอีกเมื่อให้ยาหลอก (Placebo) ใช่หรือไม่?", scores: [-1, 1, 0] },
-    { q: "7. ตรวจพบยาในเลือด (หรือของเหลวอื่น) ในระดับที่เป็นพิษใช่หรือไม่?", scores: [1, 0, 0] },
-    { q: "8. อาการรุนแรงขึ้นเมื่อเพิ่มขนาดยา หรือลดลงเมื่อลดขนาดยาใช่หรือไม่?", scores: [1, 0, 0] },
-    { q: "9. ผู้ป่วยเคยมีประวัติแพ้ยาหรือมีปฏิกิริยากับยานี้ หรือยาที่คล้ายกันมาก่อนใช่หรือไม่?", scores: [1, 0, 0] },
-    { q: "10. อาการไม่พึงประสงค์ได้รับการยืนยันด้วยหลักฐานทางวัตถุวิสัย (Objective evidence) ใช่หรือไม่?", scores: [1, 0, 0] }
+    { q: "1. เคยมีการสรุปหรือรายงานปฏิกิริยานี้กับยาชนิดนี้มาแล้วหรือไม่?", scores: [1, 0, 0] },
+    { q: "2. อาการไม่พึงประสงค์นี้เกิดขึ้นหลังจากได้รับยาที่คิดว่าเป็นสาเหตุหรือไม่?", scores: [2, -1, 0] },
+    { q: "3. อาการไม่พึงประสงค์นี้ดีขึ้นเมื่อหยุดยาดังกล่าว หรือเมื่อให้ยาต้านที่เฉพาะเจาะจง (specific antagonist) หรือไม่?", scores: [1, 0, 0] },
+    { q: "4. อาการไม่พึงประสงค์ดังกล่าวเกิดขึ้นอีกเมื่อเริ่มให้ยาใหม่หรือไม่?", scores: [2, -1, 0] },
+    { q: "5. มปฏิกิริยาที่เกิดขึ้นสามารถเกิดจากสาเหตุอื่น (นอกเหนือจากยา) ของผู้ป่วยได้หรือไม่?", scores: [-1, 2, 0] },
+    { q: "6. ปฏิกิริยาดังกล่าวเกิดขึ้นอีก เมื่อให้ยาหลอกหรือไม่?", scores: [-1, 1, 0] },
+    { q: "7. สามารถตรวจวัดปริมาณยาได้ในเลือด (หรือของเหลวอื่น) ในปริมาณความเข้มข้นที่เป็นพิษหรือไม่?", scores: [1, 0, 0] },
+    { q: "8. ปฏิกิริยารุนแรงขึ้น เมื่อเพิ่มขนาดยาหรือลดความรุนแรงลงเมื่อลดขนาดยาหรือไม่?", scores: [1, 0, 0] },
+    { q: "9. ผู้ป่วยเคยมีปฏิกิริยาเหมือนหรือคล้ายคลึงกันนี้มาก่อนในการได้รับยาครั้งก่อนๆ หรือไม่?", scores: [1, 0, 0] },
+    { q: "10. อาการไม่พึงประสงค์นี้ ได้รับการยืนยันโดยมีผลปฏิบัติการหรือผลจากการตรวจสอบอื่นๆยืนยัน (objective evidence)?", scores: [1, 0, 0] }
 ];
 
 function formatScore(score) { return score > 0 ? `(+${score})` : `(${score})`; }
