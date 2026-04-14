@@ -214,6 +214,17 @@ canvas { background-color: white; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); 
     }
 }
 
+/* Case Manager Modal */
+.case-list-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; border-radius: 8px; background: var(--light-bg); border: 1px solid var(--border); margin-bottom: 10px; gap: 12px; }
+.case-list-item:hover { border-color: #94a3b8; background: #f1f5f9; }
+.case-info { display: flex; flex-direction: column; gap: 3px; flex: 1; min-width: 0; }
+.case-info strong { color: var(--dark); font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.case-info small { color: #94a3b8; font-size: 12px; }
+.case-actions { display: flex; gap: 8px; flex-shrink: 0; }
+
+/* Import/Export Card */
+.import-export-card { border-top: 4px solid #64748b; }
+
 /* =========================================
    Naranjo Mobile Responsive (ปรับขนาดตารางดั้งเดิม)
    ========================================= */

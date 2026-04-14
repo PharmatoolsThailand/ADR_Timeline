@@ -4,6 +4,7 @@ let items = [];
 let editingId = null;
 
 let drugStartPicker, drugEndPicker;
+let currentCaseKey = null;
 
 const A4_WIDTH = 1123;
 const A4_HEIGHT = 794;
@@ -13,7 +14,6 @@ window.onload = function() {
     if (savedHosp) document.getElementById('hospitalName').value = savedHosp;
 
     document.getElementById('pharmaNote').addEventListener('input', updateUI);
-    document.fonts.ready.then(function() { updateUI(); });
 
     const flatpickrConfig = {
         locale: "th",
@@ -23,7 +23,7 @@ window.onload = function() {
         altFormat: "j F Y",
     };
 
-    flatpickr("#reportDate", {
+    const reportDatePicker = flatpickr("#reportDate", {
         ...flatpickrConfig,
         defaultDate: "today"
     });
@@ -31,7 +31,124 @@ window.onload = function() {
     flatpickr("#reactionDate", flatpickrConfig);
     drugStartPicker = flatpickr("#drugStart", flatpickrConfig);
     drugEndPicker = flatpickr("#drugEnd", flatpickrConfig);
+
+    const saved = localStorage.getItem('adr_timeline_autosave');
+    if (saved) {
+        try {
+            const data = JSON.parse(saved);
+            restoreHeaderData(data.header);
+            if (Array.isArray(data.items)) items = data.items;
+        } catch (e) { console.error('Failed to restore autosave:', e); }
+    }
+
+    document.fonts.ready.then(function() { updateUI(); });
 };
+
+function escapeHtml(str) {
+    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function getHeaderData() {
+    return {
+        hospitalName: document.getElementById('hospitalName').value,
+        patientName: document.getElementById('patientName').value,
+        patientHN: document.getElementById('patientHN').value,
+        patientAN: document.getElementById('patientAN').value,
+        reportDate: document.getElementById('reportDate').value,
+        preparedBy: document.getElementById('preparedBy').value,
+        pharmaNote: document.getElementById('pharmaNote').value
+    };
+}
+
+function restoreHeaderData(header) {
+    if (!header) return;
+    document.getElementById('hospitalName').value = header.hospitalName || '';
+    document.getElementById('patientName').value = header.patientName || '';
+    document.getElementById('patientHN').value = header.patientHN || '';
+    document.getElementById('patientAN').value = header.patientAN || '';
+    document.getElementById('preparedBy').value = header.preparedBy || '';
+    document.getElementById('pharmaNote').value = header.pharmaNote || '';
+    const rpicker = document.getElementById('reportDate')._flatpickr;
+    if (rpicker && header.reportDate) rpicker.setDate(header.reportDate);
+    else if (header.reportDate) document.getElementById('reportDate').value = header.reportDate;
+}
+
+function saveToLocalStorage() {
+    localStorage.setItem('adr_timeline_autosave', JSON.stringify({ header: getHeaderData(), items }));
+}
+
+function getCases() {
+    try { return JSON.parse(localStorage.getItem('adr_timeline_cases') || '{}'); }
+    catch (e) { return {}; }
+}
+
+function saveCase() {
+    const patientName = document.getElementById('patientName').value.trim();
+    const patientHN = document.getElementById('patientHN').value.trim();
+    if (!patientName && items.length === 0) {
+        return alert('กรุณากรอกชื่อผู้ป่วยหรือเพิ่มข้อมูลยาก่อนบันทึก');
+    }
+    const isUpdate = !!currentCaseKey;
+    const key = currentCaseKey || ('case_' + Date.now());
+    const parts = [patientName, patientHN ? `HN: ${patientHN}` : ''].filter(Boolean);
+    const label = parts.join(' — ') || 'ไม่ระบุผู้ป่วย';
+    const d = new Date();
+    const savedAt = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+    const cases = getCases();
+    cases[key] = { label, savedAt, data: { header: getHeaderData(), items } };
+    localStorage.setItem('adr_timeline_cases', JSON.stringify(cases));
+    currentCaseKey = key;
+    alert(`✅ ${isUpdate ? 'อัปเดตเคส' : 'บันทึกเคส'} "${label}" เรียบร้อยแล้ว`);
+}
+
+function openCaseModal() {
+    const cases = getCases();
+    const keys = Object.keys(cases).reverse();
+    const body = document.getElementById('caseModalBody');
+    if (keys.length === 0) {
+        body.innerHTML = '<p style="text-align:center;color:#94a3b8;padding:30px 0;">ยังไม่มีเคสที่บันทึกไว้<br><small>กดปุ่ม "💾 บันทึกเคสนี้" เพื่อบันทึกเคสแรก</small></p>';
+    } else {
+        body.innerHTML = keys.map(key => {
+            const c = cases[key];
+            return `<div class="case-list-item">
+                <div class="case-info">
+                    <strong>${escapeHtml(c.label)}</strong>
+                    <small>บันทึกเมื่อ: ${escapeHtml(c.savedAt)}</small>
+                </div>
+                <div class="case-actions">
+                    <button onclick="loadCase('${key}')" class="btn btn-primary btn-action">📂 เปิด</button>
+                    <button onclick="deleteCase('${key}')" class="btn btn-text-danger btn-action">🗑️</button>
+                </div>
+            </div>`;
+        }).join('');
+    }
+    document.getElementById('caseModal').style.display = 'block';
+}
+
+function closeCaseModal() {
+    document.getElementById('caseModal').style.display = 'none';
+}
+
+function loadCase(key) {
+    const cases = getCases();
+    const c = cases[key];
+    if (!c) return alert('ไม่พบเคสนี้แล้ว');
+    const data = c.data;
+    restoreHeaderData(data.header);
+    if (Array.isArray(data.items)) items = data.items;
+    currentCaseKey = key;
+    closeCaseModal();
+    updateUI();
+    document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+}
+
+function deleteCase(key) {
+    if (!confirm('ต้องการลบเคสนี้ออกจากบันทึกใช่หรือไม่?')) return;
+    const cases = getCases();
+    delete cases[key];
+    localStorage.setItem('adr_timeline_cases', JSON.stringify(cases));
+    openCaseModal();
+}
 
 function saveHospital() {
     const name = document.getElementById('hospitalName').value.trim();
@@ -223,10 +340,11 @@ function deleteItem(id) { if(confirm('ต้องการลบรายกา
 
 function clearAll() {
     if(confirm('⚠️ คำเตือน: คุณต้องการล้างข้อมูลทั้งหมดบนหน้าจอใช่หรือไม่? (ข้อมูลที่ยังไม่เซฟจะสูญหาย)')) {
-        items = []; cancelEdit(); document.getElementById('pharmaNote').value = '';
+        items = []; cancelEdit(); currentCaseKey = null; document.getElementById('pharmaNote').value = '';
         ['patientName', 'patientHN', 'patientAN'].forEach(id => {
             const el = document.getElementById(id); el.value = ''; el.classList.remove('is-invalid');
         });
+        localStorage.removeItem('adr_timeline_autosave');
         updateUI();
     }
 }
@@ -238,6 +356,7 @@ function updateUI() {
         return new Date(a.start) - new Date(b.start);
     });
     renderTable(); drawTimeline();
+    saveToLocalStorage();
 }
 
 function formatLongThaiDate(dateStr) {
@@ -588,18 +707,7 @@ async function exportPDF() {
 function saveDataToFile() {
     if (items.length === 0 && !document.getElementById('patientName').value) return alert('ยังไม่มีข้อมูลสำหรับบันทึกครับ');
 
-    const exportData = {
-        header: {
-            hospitalName: document.getElementById('hospitalName').value,
-            patientName: document.getElementById('patientName').value,
-            patientHN: document.getElementById('patientHN').value,
-            patientAN: document.getElementById('patientAN').value,
-            reportDate: document.getElementById('reportDate').value,
-            preparedBy: document.getElementById('preparedBy').value,
-            pharmaNote: document.getElementById('pharmaNote').value
-        },
-        items: items
-    };
+    const exportData = { header: getHeaderData(), items };
 
     const dataStr = JSON.stringify(exportData, null, 2);
     const blob = new Blob([dataStr], { type: "application/json" });
@@ -635,15 +743,7 @@ function loadDataFromFile(event) {
     reader.onload = function(e) {
         try {
             const importedData = JSON.parse(e.target.result);
-            if (importedData.header) {
-                document.getElementById('hospitalName').value = importedData.header.hospitalName || '';
-                document.getElementById('patientName').value = importedData.header.patientName || '';
-                document.getElementById('patientHN').value = importedData.header.patientHN || '';
-                document.getElementById('patientAN').value = importedData.header.patientAN || '';
-                document.getElementById('reportDate').value = importedData.header.reportDate || '';
-                document.getElementById('preparedBy').value = importedData.header.preparedBy || '';
-                document.getElementById('pharmaNote').value = importedData.header.pharmaNote || '';
-            }
+            restoreHeaderData(importedData.header);
             if (importedData.items && Array.isArray(importedData.items)) { items = importedData.items; }
             updateUI();
             document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
