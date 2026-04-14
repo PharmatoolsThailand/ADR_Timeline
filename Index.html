@@ -83,6 +83,16 @@
                                 <input type="text" id="drugEnd" readonly placeholder="เลือกวันที่">
                             </div>
                         </div>
+                        <div class="input-row mt-2">
+                            <div class="form-group" style="flex: 1;">
+                                <label>เวลา First dose (ถ้ามี):</label>
+                                <input type="text" id="drugFirstDose" placeholder="เช่น 08:00 น.">
+                            </div>
+                            <div class="form-group" style="flex: 1;">
+                                <label>เวลา Last dose (ถ้ามี):</label>
+                                <input type="text" id="drugLastDose" placeholder="เช่น 18:00 น.">
+                            </div>
+                        </div>
 
                         <div class="checkbox-row alert-box bg-light">
                             <label class="custom-checkbox text-orange">
@@ -170,6 +180,13 @@
                 <button onclick="openFullscreen()" class="btn btn-outline" style="padding: 6px 12px; font-size: 13px;">🔍 ขยายดูแบบเต็มจอ</button>
             </div>
 
+            <div class="checkbox-row alert-box bg-light mb-2">
+                <label class="custom-checkbox text-primary">
+                    <input type="checkbox" id="showAdvancedTimeline" onchange="updateUI()" checked>
+                    <span><b>แสดงข้อมูลเชิงลึกบน Timeline</b> (เวลา First/Last dose และระยะเวลาใช้ยาจนเกิด ADR)</span>
+                </label>
+            </div>
+
             <div class="canvas-container">
                 <canvas id="timelineCanvas"></canvas>
             </div>
@@ -223,11 +240,50 @@
                 </div>
             </div>
         </div>
-    </div> <footer class="app-footer">
+    </div>
+    <div id="updateModal" class="modal">
+        <div class="modal-content shadow-lg" style="max-width: 600px; border-top: 5px solid #0f766e; padding: 25px;">
+            <div class="d-flex-between align-center" style="margin-bottom: 15px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px;">
+                <h2 style="color: #0f766e; margin: 0; font-size: 22px;">🚀 ประวัติการอัปเดตเว็บ (Changelog)</h2>
+                <span class="close" onclick="closeUpdateModal()">&times;</span>
+            </div>
+
+            <div style="max-height: 400px; overflow-y: auto; padding-right: 15px;">
+
+                <div style="margin-bottom: 25px;">
+                    <h3 style="color: #0f766e; margin: 0 0 8px 0; font-size: 18px;">✨ เวอร์ชัน 1.1.0 <span style="font-size: 14px; color: #64748b; font-weight: normal;">(14 เมษายน 2569)</span></h3>
+                    <div style="background-color: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #cbd5e1;">
+                        <ul style="margin: 0; padding-left: 20px; color: #334155; font-size: 14px; line-height: 1.7;">
+                            <li><b>อัพเดทการแสดงระยะเวลาการใช้ยา:</b> ระบบคำนวณระยะเวลาการใช้ยาก่อนเกิด ADR ให้อัตโนมัติ </li>
+                            <li><b>เพิ่มเวลา First/Last dose ของยา:</b> สามารถเพิ่มข้อมูลระยะเวลาการเริ่มใช้ยาหรือหยุดยาเพิ่มเติมได้</li>
+                            <li><b>ระบบบันทึกข้อมูลใหม่:</b> สามารถบันทึกทับไฟล์เดิมได้ทันที ไม่ต้องโหลดไฟล์ใหม่ซ้ำซ้อน</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 10px;">
+                    <h3 style="color: #475569; margin: 0 0 8px 0; font-size: 18px;">🌱 เวอร์ชัน 1.0.0 <span style="font-size: 14px; color: #94a3b8; font-weight: normal;">(13 เมษายน 2569)</span></h3>
+                    <div style="background-color: #f1f5f9; padding: 15px; border-radius: 8px; border: 1px dashed #cbd5e1;">
+                        <ul style="margin: 0; padding-left: 20px; color: #64748b; font-size: 14px; line-height: 1.7;">
+                            <li>เปิดตัวระบบ <b>Drug Exposure & ADR Timeline</b> อย่างเป็นทางการ</li>
+                            <li>รองรับการสร้างแผนภาพการแพ้ยา และจัดเรียงกลุ่มยาอัตโนมัติ</li>
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+            <div class="text-center mt-3 pt-3" style="border-top: 1px solid #e2e8f0;">
+                <button onclick="closeUpdateModal()" class="btn btn-primary" style="padding: 10px 30px; font-size: 16px; border-radius: 20px;">🎉 รับทราบและเข้าสู่ระบบ</button>
+            </div>
+        </div>
+    </div>
+    <footer class="app-footer">
         <div class="footer-content">
-            <p> พัฒนาและออกแบบโดย: <span class="developer-name">นายระพีพัฒน์ ศุภโกศล</span> จบการศึกษาระดับปริญาตรี คณะเภสัชศาสตร์ มหาวิทยาลัยมหาสารคาม</p>
+            <p> พัฒนาและออกแบบโดย: <a href="https://www.facebook.com/profile.php?id=61575490055558" target="_blank" class="developer-name" style="text-decoration: none; color: #0f766e; font-weight: bold; transition: color 0.3s;">Endo-Pharma : by เภสัชกรเอ็นดู</a></p>
+                <hr>นาย ระพีพัฒน์ ศุภโกศล
+                การศึกษาระดับปริญาตรี คณะเภสัชศาสตร์ มหาวิทยาลัยมหาสารคาม</p>
             <p class="footer-subtext">เครื่องมือนี้สร้างขึ้นเพื่ออำนวยความสะดวกในการทำ Time line ประวัติการแพ้ยา</p>
-            <p class="footer-subtext">เวอร์ชัน 1.0 | สงวนลิขสิทธิ์ &copy; 2026</p>
+            <p class="footer-subtext">เวอร์ชัน 1.1.0 | สงวนลิขสิทธิ์ &copy; 2026</p>
         </div>
     </footer>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
