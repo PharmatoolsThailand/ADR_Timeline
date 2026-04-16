@@ -320,3 +320,73 @@ canvas { background-color: white; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); 
 .close-image:hover {
     color: #ef4444;
 }
+
+/* --- ระบบ Modal Popup ประเมินผื่น (Lund and Browder - อัปเดตตามรูป) --- */
+.modal-overlay {
+    display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(15, 23, 42, 0.7); z-index: 1000;
+    justify-content: center; align-items: center; backdrop-filter: blur(4px);
+}
+.modal-content {
+    background: #fff; padding: 20px; border-radius: 12px; max-width: 650px; width: 95%;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto;
+}
+
+.bsa-container {
+    display: flex; justify-content: space-around; align-items: stretch; flex-wrap: wrap; margin-top: 15px; gap: 20px;
+}
+
+.bsa-model { display: flex; flex-direction: column; align-items: center; gap: 4px; flex: 1; min-width: 250px;}
+
+.bsa-row { display: flex; gap: 4px; justify-content: center; align-items: center;}
+.bsa-col { display: flex; flex-direction: column; gap: 4px; align-items: center; }
+
+/* ชิ้นส่วนของร่างกาย */
+.bsa-part {
+    background-color: #cbd5e1; border: 1.5px solid #fff; border-radius: 6px;
+    display: flex; align-items: center; justify-content: center; text-align: center;
+    cursor: pointer; font-size: 11px; font-weight: bold; color: #334155;
+    transition: all 0.2s; user-select: none; box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    line-height: 1.3;
+}
+.bsa-part:hover { background-color: #94a3b8; transform: scale(1.04); }
+.bsa-part.selected { background-color: #ec4899; color: white; border-color: #be185d; }
+
+/* 💡 ขนาดเฉพาะแต่ละส่วน (อัปเดตใหม่) */
+.p-head { width: 50px; height: 50px; border-radius: 50%; }
+.p-neck { width: 24px; height: 16px; border-radius: 4px; }
+
+.p-u-arm { width: 36px; height: 48px; border-radius: 8px; }
+.p-l-arm { width: 30px; height: 42px; border-radius: 6px; }
+.p-hand { width: 26px; height: 28px; border-radius: 10px; }
+
+/* 💡 ลำตัวชิ้นเดียว (13%) รวมหน้าอกและท้องเข้าด้วยกัน */
+.p-main-trunk { width: 90px; height: 104px; border-radius: 8px; }
+.p-genital { width: 24px; height: 24px; border-radius: 50%; z-index: 5;}
+.p-buttock { width: 43px; height: 35px; border-radius: 8px; }
+
+.p-thigh { width: 43px; height: 65px; border-radius: 8px; }
+.p-l-leg { width: 36px; height: 60px; border-radius: 6px; }
+.p-foot { width: 38px; height: 22px; border-radius: 10px 10px 4px 4px; }
+
+/* --- ระบบปุ่มเลือก DRESS Score --- */
+.dress-btn-group {
+    display: flex; border: 1px solid #cbd5e1; border-radius: 6px; overflow: hidden; width: 100%;
+}
+.dress-btn-group.vertical { flex-direction: column; }
+.dress-btn-group.vertical .dress-btn { border-right: none; border-bottom: 1px solid #cbd5e1; }
+.dress-btn-group.vertical .dress-btn:last-child { border-bottom: none; }
+
+.dress-btn {
+    flex: 1; padding: 8px 12px; background-color: #f8fafc; border: none; border-right: 1px solid #cbd5e1;
+    color: #334155; font-size: 13px; cursor: pointer; transition: all 0.2s;
+    display: flex; justify-content: space-between; align-items: center; text-align: left;
+}
+.dress-btn:last-child { border-right: none; }
+.dress-btn:hover { background-color: #e2e8f0; }
+
+/* 💡 สีปุ่มเมื่อถูกเลือก (สีเขียวอมฟ้าแบบต้นฉบับ) */
+.dress-btn.active { background-color: #14b8a6; color: white; font-weight: bold; }
+
+.score-badge { opacity: 0.7; font-weight: normal; }
+.dress-btn.active .score-badge { opacity: 1; font-weight: bold; }
