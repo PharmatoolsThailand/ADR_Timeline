@@ -201,18 +201,36 @@ function editItem(id) {
             document.getElementById('drugLastDose').value = item.lastDose || '';
         }
 
-        document.getElementById('drugStartUnknown').checked = item.startUnknown;
+        // 💡 1. ส่วนจัดการ วันเริ่มยา และ Checkbox
+        const startCheck = document.getElementById('drugStartUnknown');
+        const startEl = document.getElementById('drugStart');
+        startCheck.checked = item.startUnknown;
 
-        if (drugStartPicker) drugStartPicker.setDate(item.start || '');
-        else document.getElementById('drugStart').value = item.start || '';
+        if (drugStartPicker) drugStartPicker.setDate(item.startUnknown ? '' : (item.start || ''));
+        else startEl.value = item.startUnknown ? '' : (item.start || '');
 
-        document.getElementById('drugStart').disabled = item.startUnknown;
-        document.getElementById('drugOngoing').checked = item.ongoing;
+        // ล็อกช่องวันที่เริ่มต้น (ล็อกทั้ง input เดิม และกล่องปฏิทินของ Flatpickr)
+        startEl.disabled = item.startUnknown;
+        if (startEl.nextElementSibling) {
+            startEl.nextElementSibling.disabled = item.startUnknown;
+            startEl.nextElementSibling.style.backgroundColor = item.startUnknown ? '#e2e8f0' : '#fff'; // เปลี่ยนเป็นสีเทาถ้าถูกล็อก
+        }
 
-        if (drugEndPicker) drugEndPicker.setDate(item.end || '');
-        else document.getElementById('drugEnd').value = item.end || '';
+        // 💡 2. ส่วนจัดการ วันหยุดยา และ Checkbox
+        const ongoingCheck = document.getElementById('drugOngoing');
+        const endEl = document.getElementById('drugEnd');
+        ongoingCheck.checked = item.ongoing;
 
-        document.getElementById('drugEnd').disabled = item.ongoing;
+        if (drugEndPicker) drugEndPicker.setDate(item.ongoing ? '' : (item.end || ''));
+        else endEl.value = item.ongoing ? '' : (item.end || '');
+
+        // ล็อกช่องวันที่สิ้นสุด
+        endEl.disabled = item.ongoing;
+        if (endEl.nextElementSibling) {
+            endEl.nextElementSibling.disabled = item.ongoing;
+            endEl.nextElementSibling.style.backgroundColor = item.ongoing ? '#e2e8f0' : '#fff';
+        }
+
         document.getElementById('btnDrugAdd').innerHTML = '💾 บันทึกการแก้ไข';
         document.getElementById('btnDrugCancel').style.display = 'inline-flex';
 
@@ -235,7 +253,6 @@ function editItem(id) {
         targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
     } else if (item.type === 'lab') {
-        // 🚀 เพิ่มระบบโหลดข้อมูล Lab
         document.getElementById('labName').value = item.rawName;
 
         const labPicker = document.getElementById('labDate')._flatpickr;
@@ -248,6 +265,40 @@ function editItem(id) {
         const targetElement = document.getElementById('labName');
         targetElement.focus();
         targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+}
+
+function toggleDrugStart() {
+    const isUnknown = document.getElementById('drugStartUnknown').checked;
+    const startEl = document.getElementById('drugStart');
+
+    // ถ้าไม่ทราบวันเริ่ม ให้ล้างปฏิทินทิ้ง
+    if (isUnknown) {
+        if(drugStartPicker) drugStartPicker.clear();
+        else startEl.value = '';
+    }
+
+    startEl.disabled = isUnknown;
+    if(startEl.nextElementSibling) {
+        startEl.nextElementSibling.disabled = isUnknown;
+        startEl.nextElementSibling.style.backgroundColor = isUnknown ? '#e2e8f0' : '#fff';
+    }
+}
+
+function toggleDrugOngoing() {
+    const isOngoing = document.getElementById('drugOngoing').checked;
+    const endEl = document.getElementById('drugEnd');
+
+    // ถ้ายังใช้อยู่ ให้ล้างปฏิทินวันหยุดยาทิ้ง
+    if (isOngoing) {
+        if(drugEndPicker) drugEndPicker.clear();
+        else endEl.value = '';
+    }
+
+    endEl.disabled = isOngoing;
+    if(endEl.nextElementSibling) {
+        endEl.nextElementSibling.disabled = isOngoing;
+        endEl.nextElementSibling.style.backgroundColor = isOngoing ? '#e2e8f0' : '#fff';
     }
 }
 
@@ -420,14 +471,14 @@ function wrapText(context, text, x, y, maxWidth, lineHeight, simulate = false) {
     return currentY;
 }
 
-// 🌟 ระบบวาด Timeline (อัปเกรด: เพิ่มสัญลักษณ์ (L) กำกับเส้นแล็บ และระบบป้องกันข้อความทับกัน)
+// 🌟 ระบบวาด Timeline (ฉบับแก้บัค: นำ First Dose และ Last Dose กลับมาแสดงผลในโหมด Advanced)
 function drawTimeline() {
     const dpr = 4;
     const DATES_PER_PAGE = 12;
 
     const allDrugs = items.filter(i => i.type === 'drug');
     const reactions = items.filter(i => i.type === 'reaction');
-    const labs = items.filter(i => i.type === 'lab'); // 💡 เพิ่มการเก็บ Array ของ Lab
+    const labs = items.filter(i => i.type === 'lab');
 
     const groupedDrugs = {};
     const uniqueDrugs = [];
@@ -455,10 +506,10 @@ function drawTimeline() {
     ctx.fillRect(0, 0, A4_WIDTH, A4_HEIGHT * totalPages);
 
     const pLeft = 260, pRight = 100;
-    const noteText = document.getElementById('pharmaNote').value.trim();
+    const noteText = document.getElementById('pharmaNote') ? document.getElementById('pharmaNote').value.trim() : "";
 
     // ==========================================
-    // 💡 ลอจิกเกลี่ยพื้นที่
+    // ลอจิกเกลี่ยพื้นที่
     // ==========================================
     let globalScale = 1.0;
     let t_rowHeight = 45;
@@ -522,7 +573,7 @@ function drawTimeline() {
         currentY += 30;
         ctx.fillText(`จัดทำโดย: ${pBy || "........................................................."}`, 50, currentY);
 
-        // 💡 อัปเดตสัญลักษณ์หัวกระดาษ ให้มี (R) และ (L)
+
         let currentX = 390;
         ctx.fillStyle="#475569"; ctx.font="bold 13px Sarabun, sans-serif"; ctx.fillText("หมายเหตุสัญลักษณ์:", currentX, currentY);
         currentX += 120; drawCircle(currentX+5, currentY-5, false, "#3b82f6"); ctx.fillStyle="#475569"; ctx.font="13px Sarabun, sans-serif"; ctx.fillText("เริ่มยา", currentX+15, currentY);
@@ -533,6 +584,7 @@ function drawTimeline() {
         currentX += 80; drawArrowDown(currentX+5, currentY-0, "#8b5cf6"); ctx.fillStyle="#8b5cf6"; ctx.fillText("แล็บและอื่น ๆ", currentX+15, currentY);
 
         currentY += 20;
+
         ctx.beginPath(); ctx.lineWidth = 1; ctx.strokeStyle = "#cbd5e1";
         ctx.moveTo(50, currentY); ctx.lineTo(A4_WIDTH-50, currentY); ctx.stroke();
 
@@ -594,10 +646,26 @@ function drawTimeline() {
                     ctx.textAlign = "center"; ctx.fillText(drug.dose, midX, y - 5); ctx.textAlign = "left";
                 }
 
-                // ข้อมูลเชิงลึก (Duration)
+                // ==========================================
+                // 💡 ข้อมูลเชิงลึก (First Dose, Last Dose, Duration)
+                // ==========================================
                 const showAdvEl = document.getElementById('showAdvancedTimeline');
                 if (showAdvEl && showAdvEl.checked) {
-                    ctx.fillStyle = "#475569"; ctx.font = `${Math.max(8, dose_fontSize - 1)}px Sarabun, sans-serif`;
+                    ctx.fillStyle = "#475569";
+                    ctx.font = `${Math.max(8, dose_fontSize - 1)}px Sarabun, sans-serif`;
+
+                    // 👉 นำ First Dose กลับมา! (วาดฝั่งซ้ายของเส้น)
+                    if (drug.firstDose && sIdx >= pageStartIdx && sIdx <= pageEndIdx && !drug.startUnknown) {
+                        ctx.textAlign = "right";
+                        ctx.fillText(drug.firstDose, xS - 8, y + 4);
+                    }
+
+                    // 👉 นำ Last Dose กลับมา! (วาดฝั่งขวาของเส้น)
+                    if (drug.lastDose && eIdx >= pageStartIdx && eIdx <= pageEndIdx && !drug.ongoing) {
+                        ctx.textAlign = "left";
+                        ctx.fillText(drug.lastDose, xE + 12, y + 4);
+                    }
+
                     const drawDurationSafe = (sDateObj, eDateObj, isOngoing) => {
                         let ss = sDateObj.toISOString().split('T')[0], es = isOngoing ? datePoints[datePoints.length-1] : eDateObj.toISOString().split('T')[0];
                         let si = datePoints.indexOf(ss), ei = datePoints.indexOf(es);
@@ -606,12 +674,16 @@ function drawTimeline() {
                         let vxS = Math.max(pLeft, pLeft + ((si - pageStartIdx) * interval)), vxE = Math.min(A4_WIDTH - pRight, pLeft + ((ei - pageStartIdx) * interval));
                         let mx = (vxS + vxE) / 2;
                         const dd = Math.round(Math.abs(eDateObj - sDateObj) / (1000 * 60 * 60 * 24));
-                        if (dd > 0) ctx.fillText(dd + ' วัน', mx, y+14);
+                        if (dd > 0) {
+                            ctx.fillStyle = "#d97706"; ctx.textAlign = "center";
+                            ctx.font = `bold ${Math.max(8, dose_fontSize - 1)}px Sarabun, sans-serif`;
+                            ctx.fillText(dd + ' วัน', mx, y+14);
+                        }
                     }
+
                     if (!drug.startUnknown) {
                         const drugStartDate = new Date(drug.start), drugEndDate = drug.ongoing ? new Date('9999-12-31') : new Date(drug.end);
                         const iRx = items.filter(it => (it.type==='reaction'||it.type==='lab')).filter(it => { const rd = new Date(it.start); return rd >= drugStartDate && rd <= drugEndDate; }).sort((a,b) => new Date(a.start)-new Date(b.start));
-                        ctx.fillStyle = "#d97706"; ctx.font = `bold ${Math.max(8, dose_fontSize - 1)}px Sarabun, sans-serif`; ctx.textAlign = "center";
                         if (iRx.length === 0) { drawDurationSafe(drugStartDate, drug.ongoing ? new Date(datePoints[datePoints.length-1]) : drugEndDate, drug.ongoing); }
                         else {
                             let pd = drugStartDate;
@@ -619,13 +691,13 @@ function drawTimeline() {
                             let fd = drug.ongoing ? new Date(datePoints[datePoints.length-1]) : drugEndDate;
                             if (fd > pd) drawDurationSafe(pd, fd, drug.ongoing);
                         }
-                        ctx.textAlign = "left";
                     }
+                    ctx.textAlign = "left"; // คืนค่าเริ่มต้นให้ Canvas
                 }
             });
         });
 
-        // 💡 [--- จุดที่แก้ไข: วาด Lab (L) และ ADR (R) พร้อมระบบเรียงบรรทัดแนวตั้ง ---]
+        // วาด Lab (L) และ ADR (R)
         const pageEvents = items.filter(it => {
             let gi = datePoints.indexOf(it.start);
             return (it.type==='reaction' || it.type==='lab') && (gi >= pageStartIdx && gi <= pageEndIdx);
@@ -638,13 +710,11 @@ function drawTimeline() {
             if (ev.type === 'reaction') conflictDates[ev.start].hasRx = true;
         });
 
-        // ตัวแปรสำหรับนับจำนวนเหตุการณ์ที่เกิดขึ้นวันเดียวกัน (เพื่อปัดบรรทัดลง ป้องกันข้อความทับกัน)
         const eventCountOnDate = {};
 
         pageEvents.forEach(ev => {
             let rxX = pLeft + ((datePoints.indexOf(ev.start) - pageStartIdx) * interval);
 
-            // เบี่ยงเส้นถ้าเกิดพร้อมกัน
             if (conflictDates[ev.start].hasLab && conflictDates[ev.start].hasRx) {
                 if (ev.type === 'lab') rxX -= 3;
                 if (ev.type === 'reaction') rxX += 3;
@@ -655,7 +725,6 @@ function drawTimeline() {
             ctx.beginPath(); ctx.moveTo(rxX, paddingTop-10); ctx.lineTo(rxX, timelineBottom+20); ctx.stroke();
             drawArrowDown(rxX, timelineBottom+20, ctx.strokeStyle);
 
-            // คำนวณพิกัด Y ของตัวหนังสือ (ปัดลงทีละ 14px ถ้ามีหลายเหตุการณ์ในวันเดียว)
             if (!eventCountOnDate[ev.start]) eventCountOnDate[ev.start] = 0;
             let txtY = timelineBottom + 32 + (eventCountOnDate[ev.start] * 14);
 
@@ -664,16 +733,15 @@ function drawTimeline() {
                 ctx.fillText(`(R${reactions.indexOf(ev)+1})`, rxX, txtY);
             } else if (ev.type === 'lab') {
                 ctx.fillStyle="#7c3aed"; ctx.font="bold 12px Sarabun, sans-serif"; ctx.textAlign="center";
-                ctx.fillText(`(L${labs.indexOf(ev)+1})`, rxX, txtY); // 💡 เพิ่ม (L) ตรงนี้
+                ctx.fillText(`(L${labs.indexOf(ev)+1})`, rxX, txtY);
             }
 
-            eventCountOnDate[ev.start]++; // นับเพิ่มเพื่อบอกว่ามีข้อความใช้บรรทัดนี้ไปแล้ว
+            eventCountOnDate[ev.start]++;
         });
 
-        // 💡 5. สรุปเหตุการณ์และ Lab ท้ายกระดาษ
+        // สรุปเหตุการณ์และ Lab ท้ายกระดาษ
         let currentBottomY = timelineBottom + 45;
 
-        // เช็คว่ามีข้อความถูกดันลงมาลึกสุดเท่าไหร่ เพื่อขยับเนื้อหาสรุปหนีไม่ให้โดนทับ
         const maxEventsOnSameDay = Math.max(0, ...Object.values(eventCountOnDate));
         if (maxEventsOnSameDay > 1) currentBottomY += ((maxEventsOnSameDay - 1) * 14);
 
@@ -696,7 +764,6 @@ function drawTimeline() {
 
                 if (data.labs.length > 0) {
                     ctx.fillStyle = "#7c3aed";
-                    // 💡 แสดง L1: Cr 1.5
                     const txt = data.labs.map(l => `L${l.i}: ${l.name}`).join(", ");
                     ctx.fillText(txt, currentX, currentBottomY);
                     currentX += ctx.measureText(txt + (data.reactions.length? " | ":"")).width;
@@ -708,12 +775,12 @@ function drawTimeline() {
                     currentX += ctx.measureText(txt).width;
                 }
                 ctx.fillStyle = "#64748b";
-                ctx.fillText(` (${formatShortThaiDate(date)})`, currentX, currentBottomY);
+                ctx.fillText(` (${formatLongThaiDate(date)})`, currentX, currentBottomY);
                 currentBottomY += adr_lineHeight;
             });
         }
 
-        // --- 6. โน้ตเภสัชกร ---
+        // โน้ตเภสัชกร
         if (p === totalPages - 1 && noteText) {
             currentBottomY += 10;
             ctx.fillStyle="#1e293b"; ctx.font=`bold ${title_fontSize}px Sarabun, sans-serif`;
