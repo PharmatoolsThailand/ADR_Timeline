@@ -3,563 +3,252 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Drug Timeline Generator | ระบบสร้างไทม์ไลน์การใช้ยา</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-    <link rel="stylesheet" type="text/css" href="https://npmcdn.com/flatpickr/dist/themes/airbnb.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700&display=swap" rel="stylesheet">
+    <title>Warfarin Dose Calculator | ระบบคำนวณขนาดยา Warfarin </title>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="Assets/CSS/style.css">
     <link rel="icon" type="image/png" sizes="192x192" href="Assets/Images/logo-endo.png">
     <link rel="apple-touch-icon" sizes="180x180" href="Assets/Images/logo-endo.png">
     <link rel="icon" type="image/png" sizes="512x512" href="Assets/Images/logo-endo.png">
 </head>
 <body>
-    <div class="container">
-        <header class="main-header">
-            <h1>💊 Drug Exposure & ADR Timeline</h1>
-            <p class="subtitle">เครื่องมือช่วยสร้างไทม์ไลน์ประวัติการใช้ยาและเหตุการณ์ไม่พึงประสงค์ (พร้อมพิมพ์ A4)</p>
-        </header>
 
-        <section class="input-section">
-            <div class="card shadow">
-                <div class="card-header">
-                    <h3>📄 1. ข้อมูลทั่วไปของผู้ป่วย </h3>
-                </div>
-                <div class="header-form-grid">
-                    <div class="form-group full-width">
-                        <label>ชื่อโรงพยาบาล / สถานพยาบาล:</label>
-                        <div class="input-row">
-                            <input type="text" id="hospitalName" placeholder="เช่น โรงพยาบาล.........." style="flex: 1;">
-                            <button onclick="saveHospital()" class="btn btn-outline" title="บันทึกชื่อ รพ. ไว้ใช้ครั้งต่อไป">💾 ตั้งเป็นค่าเริ่มต้น</button>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label>ชื่อ-นามสกุล ผู้ป่วย:</label>
-                        <input type="text" id="patientName" placeholder="ระบุชื่อและนามสกุลของผู้ป่วย (เว้นว่างไว้เพื่อเขียนมือ)">
-                    </div>
-                    <div class="input-row">
-                        <div class="form-group" style="flex: 1;">
-                            <label>Hospital Number (HN):</label>
-                            <input type="text" id="patientHN" placeholder="ระบุ HN (เว้นว่างไว้เพื่อเขียนมือ)">
-                        </div>
-                        <div class="form-group" style="flex: 1;">
-                            <label>Admission Number (AN):</label>
-                            <input type="text" id="patientAN" placeholder="ระบุ AN (เว้นว่างไว้เพื่อเขียนมือ)">
-                        </div>
-                    </div>
-                    <div class="input-row">
-                        <div class="form-group" style="flex: 1;">
-                            <label>วันที่จัดทำประวัติ:</label>
-                            <input type="text" id="reportDate" readonly placeholder="เลือกวันที่">
-                        </div>
-                        <div class="form-group" style="flex: 1;">
-                            <label>เภสัชกรผู้ประเมิน / ผู้จัดทำ:</label>
-                            <input type="text" id="preparedBy" placeholder="ระบุชื่อผู้จัดทำ (เว้นว่างไว้เพื่อเขียนมือ)">
-                        </div>
-                    </div>
+    <div class="main-header">
+        <h1>💊 คำนวณขนาดยา Warfarin</h1>
+        <p>เครื่องมือนี้สร้างขึ้นเพื่ออำนวยความสะดวกในการทำ Regimen ยา Warfarin</p>
+    </div>
+
+    <div class="calculator-container">
+
+        <div class="guideline-section">
+            <div class="guideline-title">📋 ตารางแนวทางการปรับขนาดยา Warfarin</div>
+            <div class="table-responsive">
+                <table class="guideline-table">
+                    <thead>
+                        <tr>
+                            <th>Keep<br>2.0 - 3.0</th>
+                            <th>Keep<br>2.5 - 3.5</th>
+                            <th>แนวทางการปรับยา Warfarin</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>&lt; 1.5</td><td>&lt; 1.9</td><td>เพิ่มขนาดยา 10 - 20 %</td></tr>
+                        <tr><td>1.5 - 1.9</td><td>1.9 - 2.4</td><td>เพิ่มขนาดยา 5 - 10 %</td></tr>
+                        <tr class="highlight-row"><td>2.0 - 3.0</td><td>2.5 - 3.5</td><td><strong>ใช้ยาขนาดเดิม</strong></td></tr>
+                        <tr><td>3.1 - 3.9</td><td>3.6 - 4.5</td><td>ลดขนาดยา 5 - 10 %</td></tr>
+                        <tr><td>4.0 - 4.9</td><td>4.6 - 4.9</td><td>Hold 1 day + ลดขนาดยา 10 %</td></tr>
+                        <tr><td colspan="2" class="merged-cell">5.0 - 8.9 no Bleeding</td><td>Omit 1 - 2 doses + Vitamin K 1 mg orally</td></tr>
+                        <tr><td colspan="2" class="merged-cell">&ge; 9 no Bleeding</td><td>Vitamin K 5 - 10 mg orally</td></tr>
+                        <tr><td colspan="2" class="merged-cell">Major Bleeding<br>Any INR</td><td>Vitamin K 10 mg IV plus FFP<br><span class="text-small">Repeat Vitamin K q 12 hr if needed</span></td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="references">
+                <p><strong>อ้างอิง:</strong></p>
+                <ol>
+                    <li>University of Wisconsin – UW Health. Warfarin Management-Adult-Inpatient Clinical Practice 2011.</li>
+                    <li>สมาคมแพทย์โรคหัวใจแห่งประเทศไทยฯ แนวทางการรักษาผู้ป่วยด้วยยาต้านการแข็งตัวของเลือดชนิดรับประทาน 2553.</li>
+                    <li>สุภารัตน์ วัฒนสมบัติ (โรงพยาบาลเชียงรายประชานุเคราะห์) common pitfall in warfarin management. 2560.</li>
+                </ol>
+            </div>
+        </div>
+        <div class="guideline-title">🧮 เครื่องมือคำนวณขนาดยา Warfarin</div>
+        <div class="input-section">
+            <div class="input-row">
+                <label for="currentDose"><span class="medical-icon">💊</span> ขนาดยาปัจจุบัน <span class="text-red">(เลือก)</span></label>
+                <div class="select-group">
+                    <button class="btn-step" onclick="stepDose('currentDose', -0.5)">-</button>
+                    <select id="currentDose"></select>
+                    <button class="btn-step" onclick="stepDose('currentDose', 0.5)">+</button>
+                    <span class="unit">mg/wk</span>
                 </div>
             </div>
 
-            <div class="card-grid">
-                <div class="card shadow highlight-card">
-                    <div class="card-header">
-                        <h3>💊 2. บันทึกประวัติการใช้ยา</h3>
-                    </div>
-                    <div class="form-group">
-                        <label>ชื่อยา และ ขนาดการใช้:<span class="req-mark">*</span></label>
-                        <div class="input-row">
-                            <input type="text" id="drugName" placeholder="ชื่อยา (เช่น Amoxicillin)" style="flex: 2;">
-                            <input type="text" id="drugDose" placeholder="Dose (เช่น 1g IV v 24 hr) (ถ้ามี)" style="flex: 1.5;">
-                        </div>
-
-                        <div class="date-row mt-2">
-                            <div class="form-group" style="flex: 1;">
-                                <label>วันที่เริ่มใช้ยา (Start):<span class="req-mark">*</span></label>
-                                <input type="text" id="drugStart" readonly placeholder="เลือกวันที่">
-                            </div>
-                            <div class="form-group" style="flex: 1;">
-                                <label>วันที่หยุดยา (Off):<span class="req-mark">*</span></label>
-                                <input type="text" id="drugEnd" readonly placeholder="เลือกวันที่">
-                            </div>
-                        </div>
-                        <div class="input-row mt-2">
-                            <div class="form-group" style="flex: 1;">
-                                <label>เวลา First dose (ถ้ามี):</label>
-                                <input type="text" id="drugFirstDose" placeholder="เช่น 08:00 น.">
-                            </div>
-                            <div class="form-group" style="flex: 1;">
-                                <label>เวลา Last dose (ถ้ามี):</label>
-                                <input type="text" id="drugLastDose" placeholder="เช่น 18:00 น.">
-                            </div>
-                        </div>
-
-                        <div class="checkbox-row alert-box bg-light">
-                            <label class="custom-checkbox text-orange">
-                                <input type="checkbox" id="drugStartUnknown">
-                                <span><b>ไม่ระบุวันเริ่ม หรือไม่ทราบวันเริ่มยา</b> (ยาเดิมที่ผู้ป่วยใช้มานานแล้ว)</span>
-                            </label>
-                            <label class="custom-checkbox text-green">
-                                <input type="checkbox" id="drugOngoing">
-                                <span><b>ปัจจุบันยังใช้อยู่</b></span>
-                            </label>
-                        </div>
-
-                        <div style="display: flex; gap: 10px; margin-top: 15px; width: 100%;">
-
-                            <button id="btnDrugAdd" onclick="addItem('drug')" class="btn" style="flex: 1; background-color: #0f766e; color: white; padding: 12px; font-size: 15px; font-weight: bold; border-radius: 6px; border: none; cursor: pointer; display: flex; justify-content: center; align-items: center;">
-                                ➕ เพิ่มรายการยานี้ลงตาราง
-                            </button>
-
-                            <button id="btnDrugCancel" onclick="cancelEdit()" class="btn" style="flex: 1; background-color: #64748b; color: white; padding: 12px; font-size: 15px; font-weight: bold; border-radius: 6px; border: none; cursor: pointer; display: none; justify-content: center; align-items: center;">
-                                ❌ ยกเลิกการแก้ไข
-                            </button>
-
-                        </div>
-                    </div>
+            <div class="input-row">
+                <label for="targetDose"><span class="medical-icon">💊</span> ขนาดยาที่ต้องการ <span class="text-red">(เลือก)</span></label>
+                <div class="select-group">
+                    <button class="btn-step" onclick="stepDose('targetDose', -0.5)">-</button>
+                    <select id="targetDose"></select>
+                    <button class="btn-step" onclick="stepDose('targetDose', 0.5)">+</button>
+                    <span class="unit">mg/wk</span>
                 </div>
-
-                <div class="card shadow danger-card">
-                    <div class="card-header">
-                        <h3>⚠️ 3.1 บันทึกเหตุการณ์ / อาการแพ้ (ADR)</h3>
-                    </div>
-                    <div class="form-group">
-                        <label>ลักษณะอาการไม่พึงประสงค์ที่ตรวจพบ:</label>
-                        <input type="text" id="reactionName" placeholder="ระบุอาการของผู้ป่วย เช่น Maculopapular rash">
-
-                        <label class="mt-2">วันที่เริ่มปรากฏอาการ:</label>
-                        <input type="text" id="reactionDate" readonly placeholder="เลือกวันที่">
-
-                        <div class="action-buttons mt-2">
-                            <button id="btnReactionAdd" onclick="addItem('reaction')" class="btn btn-danger">➕ บันทึกอาการแพ้</button>
-                            <button id="btnReactionCancel" onclick="cancelEdit()" class="btn btn-gray" style="display: none;">❌ ยกเลิก</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="card shadow warning-card" style="border-top: 4px solid #8b5cf6;">
-                <div class="card-header">
-                    <h3>📊 3.1 บันทึกผลแล็บ / ข้อมูลเพิ่มเติม</h3>
-                </div>
-                <div class="form-group">
-                    <label>รายละเอียด (เช่น Cr 1.5, ALT 500, Skin Biopsy):</label>
-                    <input type="text" id="labName" placeholder="ระบุผลแล็บหรือข้อมูลสำคัญ">
-
-                    <label class="mt-2">วันที่ตรวจพบ:</label>
-                    <input type="text" id="labDate" readonly placeholder="เลือกวันที่">
-
-                    <div class="action-buttons mt-2">
-                        <button id="btnLabAdd" onclick="addItem('lab')" class="btn btn-purple">➕ บันทึกข้อมูลแล็บ</button>
-                        <button id="btnLabCancel" onclick="cancelEdit()" class="btn btn-gray" style="display: none;">❌ ยกเลิก</button>
-                    </div>
-                </div>
-            </div>
-            <div class="card shadow">
-                <div class="card-header">
-                    <h3>📝 4. บันทึกความเห็น (Pharmacist Note)</h3>
-                    <small class="text-muted">ข้อมูลส่วนนี้จะถูกนำไปแสดงผลบริเวณด้านล่างของหน้ากระดาษ A4</small>
-                </div>
-                <div class="form-group mt-1">
-                    <textarea id="pharmaNote" rows="3" placeholder="พิมพ์ข้อเสนอแนะ, ผลแล็บที่เกี่ยวข้อง, หรือแผนการดูแลผู้ป่วย ..."></textarea>
-                </div>
-            </div>
-
-            <div class="card shadow">
-                <div class="card-header d-flex-between">
-                    <h3>📋 รายการข้อมูลที่บันทึกแล้ว</h3>
-                </div>
-                <div class="table-responsive">
-                    <table id="itemTable" class="modern-table">
-                        <thead>
-                            <tr>
-                                <th style="width: 10%;">ประเภท</th>
-                                <th style="width: 40%;">รายการ (ชื่อยา / อาการ)</th>
-                                <th style="width: 20%;">วันเริ่มต้น</th>
-                                <th style="width: 20%;">วันสิ้นสุด</th>
-                                <th style="width: 10%; text-align: center;">จัดการ</th>
-                            </tr>
-                        </thead>
-                        <tbody id="itemTableBody"></tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
-
-        <div class="toolbar-sticky">
-            <div class="toolbar-left">
-                <input type="file" id="fileInput" accept=".json" style="display: none;" onchange="loadDataFromFile(event)">
-                <button onclick="triggerFileInput()" class="btn btn-purple">📂 เปิดไฟล์เดิม</button>
-                <button onclick="saveDataToFile()" class="btn btn-dark">💾 เซฟงานเก็บไว้</button>
-            </div>
-            <div class="toolbar-right">
-                <button onclick="clearAll()" class="btn btn-text-danger">🗑️ ล้างหน้าจอ</button>
-                <button onclick="exportPDF()" class="btn btn-success" style="font-size: 16px;">⬇️ ดาวน์โหลด PDF เพื่อพิมพ์</button>
             </div>
         </div>
 
-        <section class="display-section mt-3">
-            <div class="d-flex-between mb-2">
-                <h3 style="margin: 0; color: #475569; font-size: 16px;">🖼️ ตัวอย่างเอกสาร</h3>
-                <button onclick="openFullscreen()" class="btn btn-outline" style="padding: 6px 12px; font-size: 13px;">🔍 ขยายดูแบบเต็มจอ</button>
-            </div>
+        <div class="button-grid">
+            <button class="btn-pct btn-increase" onclick="applyPercent(5)">+5%</button>
+            <button class="btn-pct btn-increase" onclick="applyPercent(10)">+10%</button>
+            <button class="btn-pct btn-increase" onclick="applyPercent(15)">+15%</button>
+            <button class="btn-pct btn-increase" onclick="applyPercent(20)">+20%</button>
 
-            <div class="checkbox-row alert-box bg-light mb-2">
-                <label class="custom-checkbox text-primary">
-                    <input type="checkbox" id="showAdvancedTimeline" onchange="updateUI()" checked>
-                    <span><b>แสดงข้อมูลเชิงลึกบน Timeline</b> (เวลา First/Last dose และระยะเวลาใช้ยาจนเกิด ADR)</span>
+            <button class="btn-pct btn-decrease" onclick="applyPercent(-5)">-5%</button>
+            <button class="btn-pct btn-decrease" onclick="applyPercent(-10)">-10%</button>
+            <button class="btn-pct btn-decrease" onclick="applyPercent(-20)">-20%</button>
+            <button class="btn-pct btn-decrease" onclick="applyPercent(-15)">-15%</button>
+        </div>
+
+        <div class="results-container">
+            <div class="result-card">
+                <p>ความเปลี่ยนแปลงจริง (%)</p>
+                <h3 id="actualPercent">-</h3>
+            </div>
+            <div class="result-card">
+                <p>ขนาดยาที่เปลี่ยนแปลง (mg/week)</p>
+                <h3 id="newDoseDisplay">-</h3>
+            </div>
+        </div>
+
+        <div class="regimen-wrapper">
+            <h3 class="regimen-title">📝 Regimen ที่แนะนำ</h3>
+
+            <div class="pill-selection-text">เลือกขนาดยาที่มีในโรงพยาบาล</div>
+            <div class="pill-selectors">
+                <label class="pill-checkbox-label active" id="lbl-pill-2">
+                    <input type="checkbox" id="chk-2" checked onchange="updatePillState(2)">
+                    <div class="pill-icon" style="background-color: #f28b30;"></div>
+                    <span>เม็ด 2 mg</span>
+                </label>
+                <label class="pill-checkbox-label active" id="lbl-pill-3">
+                    <input type="checkbox" id="chk-3" checked onchange="updatePillState(3)">
+                    <div class="pill-icon" style="background-color: #0b5394;"></div>
+                    <span>เม็ด 3 mg</span>
+                </label>
+                <label class="pill-checkbox-label active" id="lbl-pill-5">
+                    <input type="checkbox" id="chk-5" checked onchange="updatePillState(5)">
+                    <div class="pill-icon" style="background-color: #e84c95;"></div>
+                    <span>เม็ด 5 mg</span>
+                </label>
+                <label class="quarter-toggle">
+                    <input type="checkbox" id="chk-quarter" onchange="updateRegimens(parseFloat(document.getElementById('targetDose').value))">
+                    <div class="quarter-btn-content">
+                        <span class="quarter-icon">✂️</span>
+                        <span>อนุญาตหัก 1/4 เม็ด</span>
+                    </div>
                 </label>
             </div>
 
-            <div class="canvas-container">
-                <canvas id="timelineCanvas"></canvas>
-            </div>
-        </section>
-
-        <div id="imageModal" class="modal image-modal">
-            <span class="close-image" onclick="closeFullscreen()">&times;</span>
-            <div class="image-modal-content">
-                <img id="expandedImg" alt="Timeline Fullscreen">
-            </div>
-        </div>
-
-        <hr class="divider">
-        <section class="tools-section" style="margin-top: 20px;">
-    <div class="center-text" style="text-align: center;">
-        <h3 style="color: #1e293b; margin-bottom: 5px;">🛠️ เครื่องมือประเมินทางเภสัชกรรมเพิ่มเติม</h3>
-        <p class="text-muted" style="color: #64748b; font-size: 14px; margin-bottom: 15px;">ใช้สำหรับประเมินความสัมพันธ์ระหว่างยากับอาการไม่พึงประสงค์</p>
-
-        <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; margin-bottom: 20px;">
-
-            <button onclick="openNaranjo()" class="btn" style="background-color: #4f46e5; color: white; width: 280px; padding: 12px; font-size: 15px; font-weight: bold; border-radius: 8px; border: none; cursor: pointer; box-shadow: 0 4px 6px rgba(79, 70, 229, 0.3);">
-                📋 เปิดแบบประเมิน Naranjo Algorithm
-            </button>
-
-            <button onclick="openDressModal()" class="btn" style="background-color: #0284c7; color: white; width: 280px; padding: 12px; font-size: 15px; font-weight: bold; border-radius: 8px; border: none; cursor: pointer; box-shadow: 0 4px 6px rgba(2, 132, 199, 0.3);">
-                🩺 ประเมิน DRESS (RegiSCAR Score)
-            </button>
-
-            <button onclick="openBSAModal()" class="btn" style="background-color: #ef4444; color: white; width: 280px; padding: 12px; font-size: 15px; font-weight: bold; border-radius: 8px; border: none; cursor: pointer; box-shadow: 0 4px 6px rgba(239, 68, 68, 0.3);">
-                🧍‍♂️ ประเมินพื้นที่ผิวผื่น (SCARs BSA)
-            </button>
-
-                </div>
-            </div>
-        </section>
-        </div> <div id="naranjoModal" class="modal">
-            <div class="modal-content shadow-lg">
-                <span class="close" onclick="closeNaranjo()">&times;</span>
-                <h2 style="color: #2c3e50; margin-bottom: 5px;">Naranjo Algorithm</h2>
-                <p class="text-muted mb-3">แบบประเมินโอกาสการเกิดอาการไม่พึงประสงค์จากยา (ADR Probability Scale)</p>
-                <div class="naranjo-table-container">
-                    <table class="naranjo-table modern-table">
-                        <thead>
-                            <tr>
-                                <th>คำถามพิจารณา (Question)</th>
-                                <th style="width: 80px; text-align: center;">ใช่</th>
-                                <th style="width: 80px; text-align: center;">ไม่ใช่</th>
-                                <th style="width: 80px; text-align: center;">ไม่ทราบ</th>
-                            </tr>
-                        </thead>
-                        <tbody id="naranjoBody"></tbody>
-                    </table>
-                </div>
-                <div class="naranjo-footer d-flex-between align-center mt-3">
-                    <div class="naranjo-legend">
-                        <div class="legend-item"><span style="color:#c0392b; font-weight:bold;">&ge; 9</span> ใช่แน่ (Definite)</div>
-                        <div class="legend-item"><span style="color:#d35400; font-weight:bold;">5-8</span> น่าจะใช่ (Probable)</div>
-                        <div class="legend-item"><span style="color:#f39c12; font-weight:bold;">1-4</span> อาจจะใช่ (Possible)</div>
-                        <div class="legend-item"><span style="color:#7f8c8d; font-weight:bold;">&le; 0</span> น่าสงสัย (Doubtful)</div>
-                    </div>
-                    <div class="result-box text-right">
-                        <h3 id="naranjoTotal">คะแนนรวม: 0</h3>
-                        <p id="naranjoLevel" class="result-level">ระดับความน่าจะเป็น: -</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div id="bsaSkinModal" class="modal-overlay">
-            <div class="modal-content shadow-lg">
-                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px;">
-                    <h3 style="margin: 0; color: #1e293b;">🔥 ประเมินพื้นที่ผิวที่เกิดผื่น (Lund & Browder Chart)</h3>
-                    <button onclick="closeBSAModal()" style="background: none; border: none; font-size: 20px; cursor: pointer;">❌</button>
-                </div>
-
-                <div class="bsa-container">
-                    <div class="bsa-model">
-                        <h4 style="color: #475569; margin-bottom: 5px; font-size: 15px; text-align: center;">ด้านหน้า (Front)</h4>
-                        <div class="bsa-part p-head" data-percent="3.5" onclick="toggleSkinBSA(this)">หัว<br>3.5%</div>
-                        <div class="bsa-part p-neck" data-percent="1" onclick="toggleSkinBSA(this)">คอ 1</div> <hr>
-
-                        <div class="bsa-row">
-                            <div class="bsa-col">
-                                <div class="bsa-part p-u-arm" data-percent="2" onclick="toggleSkinBSA(this)">แขนบน<br>2%</div>
-                                <div class="bsa-part p-l-arm" data-percent="1.5" onclick="toggleSkinBSA(this)">แขนล่าง<br>1.5%</div>
-                                <div class="bsa-part p-hand" data-percent="1.5" onclick="toggleSkinBSA(this)">มือ<br>1.5%</div>
-                            </div>
-                            <div class="bsa-col" style="margin-top: -15px;">
-                                <div class="bsa-part p-main-trunk" data-percent="13" onclick="toggleSkinBSA(this)">ลำตัว<br>13%</div>
-                                <div style="height: 35px; display: flex; justify-content: center; align-items: flex-start; width: 100%;">
-                                    <div class="bsa-part p-genital" data-percent="1" onclick="toggleSkinBSA(this)">เพศ 1</div>
-                                </div>
-                            </div>
-                            <div class="bsa-col">
-                                <div class="bsa-part p-u-arm" data-percent="2" onclick="toggleSkinBSA(this)">แขนบน<br>2%</div>
-                                <div class="bsa-part p-l-arm" data-percent="1.5" onclick="toggleSkinBSA(this)">แขนล่าง<br>1.5%</div>
-                                <div class="bsa-part p-hand" data-percent="1.5" onclick="toggleSkinBSA(this)">มือ<br>1.5%</div>
-                            </div>
-                        </div>
-
-                        <div class="bsa-row" style="margin-top: 5px;">
-                            <div class="bsa-col">
-                                <div class="bsa-part p-thigh" data-percent="4.75" onclick="toggleSkinBSA(this)">ต้นขา<br>4.75%</div>
-                                <div class="bsa-part p-l-leg" data-percent="3.5" onclick="toggleSkinBSA(this)">ขาล่าง<br>3.5%</div>
-                                <div class="bsa-part p-foot" data-percent="1.75" onclick="toggleSkinBSA(this)">เท้า 1.75</div>
-                            </div>
-                            <div class="bsa-col">
-                                <div class="bsa-part p-thigh" data-percent="4.75" onclick="toggleSkinBSA(this)">ต้นขา<br>4.75%</div>
-                                <div class="bsa-part p-l-leg" data-percent="3.5" onclick="toggleSkinBSA(this)">ขาล่าง<br>3.5%</div>
-                                <div class="bsa-part p-foot" data-percent="1.75" onclick="toggleSkinBSA(this)">เท้า 1.75</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="bsa-model">
-                        <h4 style="color: #475569; margin-bottom: 5px; font-size: 15px; text-align: center;">ด้านหลัง (Back)</h4>
-                        <div class="bsa-part p-head" data-percent="3.5" onclick="toggleSkinBSA(this)">หัว<br>3.5%</div>
-                        <div class="bsa-part p-neck" data-percent="1" onclick="toggleSkinBSA(this)">คอ 1</div> <hr>
-
-                        <div class="bsa-row">
-                            <div class="bsa-col">
-                                <div class="bsa-part p-u-arm" data-percent="2" onclick="toggleSkinBSA(this)">แขนบน<br>2%</div>
-                                <div class="bsa-part p-l-arm" data-percent="1.5" onclick="toggleSkinBSA(this)">แขนล่าง<br>1.5%</div>
-                                <div class="bsa-part p-hand" data-percent="1.5" onclick="toggleSkinBSA(this)">มือ<br>1.5%</div>
-                            </div>
-                            <div class="bsa-col" style="margin-top: -15px;">
-                                <div class="bsa-part p-main-trunk" data-percent="13" onclick="toggleSkinBSA(this)">แผ่นหลัง<br>13%</div>
-                                <div style="display: flex; gap: 4px; justify-content: center; width: 100%;">
-                                    <div class="bsa-part p-buttock" data-percent="2.5" onclick="toggleSkinBSA(this)">ก้น<br>2.5%</div>
-                                    <div class="bsa-part p-buttock" data-percent="2.5" onclick="toggleSkinBSA(this)">ก้น<br>2.5%</div>
-                                </div>
-                            </div>
-                            <div class="bsa-col">
-                                <div class="bsa-part p-u-arm" data-percent="2" onclick="toggleSkinBSA(this)">แขนบน<br>2%</div>
-                                <div class="bsa-part p-l-arm" data-percent="1.5" onclick="toggleSkinBSA(this)">แขนล่าง<br>1.5%</div>
-                                <div class="bsa-part p-hand" data-percent="1.5" onclick="toggleSkinBSA(this)">มือ<br>1.5%</div>
-                            </div>
-                        </div>
-
-                        <div class="bsa-row" style="margin-top: 5px;">
-                            <div class="bsa-col">
-                                <div class="bsa-part p-thigh" data-percent="4.75" onclick="toggleSkinBSA(this)">ต้นขา<br>4.75%</div>
-                                <div class="bsa-part p-l-leg" data-percent="3.5" onclick="toggleSkinBSA(this)">ขาล่าง<br>3.5%</div>
-                                <div class="bsa-part p-foot" data-percent="1.75" onclick="toggleSkinBSA(this)">เท้า 1.75</div>
-                            </div>
-                            <div class="bsa-col">
-                                <div class="bsa-part p-thigh" data-percent="4.75" onclick="toggleSkinBSA(this)">ต้นขา<br>4.75%</div>
-                                <div class="bsa-part p-l-leg" data-percent="3.5" onclick="toggleSkinBSA(this)">ขาล่าง<br>3.5%</div>
-                                <div class="bsa-part p-foot" data-percent="1.75" onclick="toggleSkinBSA(this)">เท้า 1.75</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div style="margin-top: 20px; background: #f0f9ff; padding: 15px; border-radius: 8px; text-align: center; border: 2px dashed #38bdf8;">
-                    <p style="margin: 0; color: #075985; font-size: 16px;">พื้นที่ผิวที่มีผื่น/ลอก (Total Detachment):</p>
-                    <h2 style="margin: 5px 0 0 0; color: #0284c7; font-size: 36px;">
-                        <span id="skinBsaTotal">0</span>%
-                    </h2>
-                    <p id="scarSeverity" style="margin: 10px 0 0 0; font-weight: bold; color: #b91c1c;"></p>
-                </div>
-            </div>
-        </div>
-        <div id="dressModal" class="modal-overlay">
-    <div class="modal-content shadow-lg" style="max-width: 650px;">
-        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px;">
-            <h3 style="margin: 0; color: #1e293b;">🩺 RegiSCAR Score for DRESS</h3>
-            <button onclick="closeDressModal()" style="background: none; border: none; font-size: 20px; cursor: pointer;">❌</button>
-                </div>
-                <p style="color: #64748b; font-size: 14px; margin-top: 10px; margin-bottom: 15px;">แบบประเมินโอกาสเกิดภาวะ Drug Reaction with Eosinophilia and Systemic Symptoms</p>
-
-                <div style="max-height: 50vh; overflow-y: auto; padding-right: 5px;">
-                    <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
-                        <thead style="position: sticky; top: 0; background: #f8fafc; box-shadow: 0 2px 4px rgba(0,0,0,0.05); z-index: 10;">
-                            <tr>
-                                <th style="text-align: left; padding: 12px 10px; border-bottom: 2px solid #cbd5e1; color: #334155;">เกณฑ์การประเมิน (Criteria)</th>
-                                <th style="width: 220px; text-align: left; padding: 12px 10px; border-bottom: 2px solid #cbd5e1; color: #334155;">ผลการตรวจ (Score)</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr style="border-bottom: 1px solid #e2e8f0;">
-                                <td style="padding: 10px;"><b>1. ไข้ (Fever)</b> ≥ 38.5 °C</td>
-                                <td style="padding: 10px; width: 320px;">
-                                    <div class="dress-btn-group" id="dress-g1" data-val="-1">
-                                        <button class="dress-btn active" onclick="selectDress('dress-g1', this, -1)">No/Unknown <span class="score-badge">-1</span></button>
-                                        <button class="dress-btn" onclick="selectDress('dress-g1', this, 0)">Yes <span class="score-badge">0</span></button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr style="border-bottom: 1px solid #e2e8f0;">
-                                <td style="padding: 10px;"><b>2. ต่อมน้ำเหลืองโต</b> (≥ 2 บริเวณ, > 1 cm)</td>
-                                <td style="padding: 10px;">
-                                    <div class="dress-btn-group" id="dress-g2" data-val="0">
-                                        <button class="dress-btn active" onclick="selectDress('dress-g2', this, 0)">No/Unknown <span class="score-badge">0</span></button>
-                                        <button class="dress-btn" onclick="selectDress('dress-g2', this, 1)">Yes <span class="score-badge">+1</span></button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr style="border-bottom: 1px solid #e2e8f0;">
-                                <td style="padding: 10px;"><b>3. Atypical lymphocytes</b></td>
-                                <td style="padding: 10px;">
-                                    <div class="dress-btn-group" id="dress-g3" data-val="0">
-                                        <button class="dress-btn active" onclick="selectDress('dress-g3', this, 0)">No/Unknown <span class="score-badge">0</span></button>
-                                        <button class="dress-btn" onclick="selectDress('dress-g3', this, 1)">Yes <span class="score-badge">+1</span></button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr style="border-bottom: 1px solid #e2e8f0;">
-                                <td style="padding: 10px;"><b>4. Eosinophilia</b> (เม็ดเลือดขาวอีโอซิโนฟิล)</td>
-                                <td style="padding: 10px;">
-                                    <div class="dress-btn-group vertical" id="dress-g4" data-val="0">
-                                        <button class="dress-btn active" onclick="selectDress('dress-g4', this, 0)">0-699 cells or &lt;10% <span class="score-badge">0</span></button>
-                                        <button class="dress-btn" onclick="selectDress('dress-g4', this, 1)">700-1,499 cells or 10-19.9% <span class="score-badge">+1</span></button>
-                                        <button class="dress-btn" onclick="selectDress('dress-g4', this, 2)">≥1,500 cells or ≥20% <span class="score-badge">+2</span></button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr style="border-bottom: 1px solid #e2e8f0;">
-                                <td style="padding: 10px;"><b>5. Skin rash extent >50%</b> (พื้นที่ผื่น)</td>
-                                <td style="padding: 10px;">
-                                    <div class="dress-btn-group" id="dress-g5" data-val="0">
-                                        <button class="dress-btn active" onclick="selectDress('dress-g5', this, 0)">No/Unknown <span class="score-badge">0</span></button>
-                                        <button class="dress-btn" onclick="selectDress('dress-g5', this, 1)">Yes <span class="score-badge">+1</span></button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr style="border-bottom: 1px solid #e2e8f0;">
-                                <td style="padding: 10px;"><b>6. ลักษณะผื่นเข้าได้กับ DRESS</b><br><span style="font-size: 12px; color: #64748b;">(≥ 2 อย่าง: บวม, แข็ง, จ้ำเลือด, ลอก)</span></td>
-                                <td style="padding: 10px;">
-                                    <div class="dress-btn-group" id="dress-g6" data-val="-1">
-                                        <button class="dress-btn active" onclick="selectDress('dress-g6', this, -1)">No <span class="score-badge">-1</span></button>
-                                        <button class="dress-btn" onclick="selectDress('dress-g6', this, 1)">Yes <span class="score-badge">+1</span></button>
-                                        <button class="dress-btn" onclick="selectDress('dress-g6', this, 0)">Unknown <span class="score-badge">0</span></button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr style="border-bottom: 1px solid #e2e8f0;">
-                                <td style="padding: 10px;"><b>7. Biopsy suggesting DRESS</b> (ผลชิ้นเนื้อ)</td>
-                                <td style="padding: 10px;">
-                                    <div class="dress-btn-group" id="dress-g7" data-val="-1">
-                                        <button class="dress-btn active" onclick="selectDress('dress-g7', this, -1)">No <span class="score-badge">-1</span></button>
-                                        <button class="dress-btn" onclick="selectDress('dress-g7', this, 0)">Yes/Unknown <span class="score-badge">0</span></button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr style="border-bottom: 1px solid #e2e8f0;">
-                                <td style="padding: 10px;"><b>8. Internal organ involved</b> (อวัยวะภายใน)</td>
-                                <td style="padding: 10px;">
-                                    <div class="dress-btn-group" id="dress-g8" data-val="0">
-                                        <button class="dress-btn active" onclick="selectDress('dress-g8', this, 0)">0 <span class="score-badge">0</span></button>
-                                        <button class="dress-btn" onclick="selectDress('dress-g8', this, 1)">1 <span class="score-badge">+1</span></button>
-                                        <button class="dress-btn" onclick="selectDress('dress-g8', this, 2)">≥ 2 <span class="score-badge">+2</span></button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr style="border-bottom: 1px solid #e2e8f0;">
-                                <td style="padding: 10px;"><b>9. Resolution in ≥15 days</b> (ระยะเวลา)</td>
-                                <td style="padding: 10px;">
-                                    <div class="dress-btn-group" id="dress-g9" data-val="-1">
-                                        <button class="dress-btn active" onclick="selectDress('dress-g9', this, -1)">No/Unknown <span class="score-badge">-1</span></button>
-                                        <button class="dress-btn" onclick="selectDress('dress-g9', this, 0)">Yes <span class="score-badge">0</span></button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td style="padding: 10px;"><b>10. Alternative diag. excluded</b> (แยกสาเหตุอื่น)</td>
-                                <td style="padding: 10px;">
-                                    <div class="dress-btn-group" id="dress-g10" data-val="0">
-                                        <button class="dress-btn active" onclick="selectDress('dress-g10', this, 0)">No/Unknown <span class="score-badge">0</span></button>
-                                        <button class="dress-btn" onclick="selectDress('dress-g10', this, 1)">Yes <span class="score-badge">+1</span></button>
-                                    </div>
-                                </td>
-                            </tr>
+            <div class="table-responsive">
+                <table class="regimen-table">
+                    <thead>
+                        <tr>
+                            <th>เลือก</th>
+                            <th>จันทร์</th>
+                            <th>อังคาร</th>
+                            <th>พุธ</th>
+                            <th>พฤหัส</th>
+                            <th>ศุกร์</th>
+                            <th>เสาร์</th>
+                            <th>อาทิตย์</th>
+                        </tr>
+                    </thead>
+                    <tbody id="regimen-tbody">
                         </tbody>
-                    </table>
-                </div>
+                </table>
+            </div>
+        </div>
 
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; background: #f0fdf4; padding: 15px; border-radius: 8px; border: 2px dashed #4ade80;">
-                    <div style="font-size: 13px; line-height: 1.6; color: #334155;">
-                        <div style="color: #b91c1c; font-weight: bold;">≥ 6 : Definite (ใช่แน่นอน)</div>
-                        <div style="color: #ea580c; font-weight: bold;">4 - 5 : Probable (น่าจะใช่)</div>
-                        <div style="color: #ca8a04; font-weight: bold;">2 - 3 : Possible (อาจจะใช่)</div>
-                        <div style="color: #475569; font-weight: bold;">&lt; 2 : Excluded (ไม่ใช่)</div>
-                    </div>
-                    <div style="text-align: right;">
-                        <h3 style="margin:0; color:#166534; font-size:24px;">คะแนนรวม: <span id="dressTotal">-2</span></h3>
-                        <p id="dressLevel" style="margin:5px 0 0 0; font-weight:bold; color:#15803d; font-size:16px;">ระดับความน่าจะเป็น: Excluded</p>
-                    </div>
+        <div class="dispense-wrapper">
+            <h3 class="regimen-title">📦 คำนวณจำนวนยาที่ต้องจ่าย</h3>
+
+            <div class="dispense-options">
+                <label class="dispense-options-label">รูปแบบการหยิบยา:</label>
+                <div class="toggle-group">
+                    <input type="radio" id="dispense-combine" name="dispenseType" value="combine" checked onchange="calculateDispense()">
+                    <label for="dispense-combine" class="toggle-btn">รวมซอง (ปกติ)</label>
+
+                    <input type="radio" id="dispense-separate" name="dispenseType" value="separate" onchange="calculateDispense()">
+                    <label for="dispense-separate" class="toggle-btn">แยกซอง (เต็มเม็ด / ครึ่งเม็ด)</label>
+                </div>
+            </div>
+
+            <div class="dispense-inputs">
+                <div class="input-group">
+                    <label for="dispenseDays">จำนวนวัน (วัน)</label>
+                    <input type="number" id="dispenseDays" min="1" value="30" oninput="updateDateFromDays()">
+                </div>
+                <div class="input-group">
+                    <label for="dispenseDate">หรือระบุวันนัด</label>
+                    <input type="date" id="dispenseDate" onchange="updateDaysFromDate()">
+                </div>
+            </div>
+
+            <div id="dispenseResult" class="dispense-result-container">
+                </div>
+        </div>
+        <div class="calendar-wrapper no-print">
+            <h3 class="regimen-title">🗓️ ปฏิทินการกินยา (สำหรับผู้ป่วย)</h3>
+
+            <div class="dispense-inputs" style="align-items: flex-end; flex-wrap: wrap; gap: 15px;">
+                <div class="input-group" style="flex: 1; min-width: 120px;">
+                    <label for="startMonth">ตั้งแต่เดือน</label>
+                    <input type="month" id="startMonth" onchange="generateCalendar()">
+                </div>
+                <div class="input-group" style="flex: 1; min-width: 120px;">
+                    <label for="endMonth">ถึงเดือน</label>
+                    <input type="month" id="endMonth" onchange="generateCalendar()">
+                </div>
+                <div class="input-group" style="flex: 1; min-width: 120px;">
+                    <label for="paperSize">ขนาดกระดาษ</label>
+                    <select id="paperSize">
+                        <option value="A4">A4 (แนวนอน)</option>
+                        <option value="A5">A5 (แนวนอน)</option>
+                    </select>
+                </div>
+                <div class="input-group" style="flex: 1; min-width: 120px;">
+                    <button class="btn-pct btn-increase" style="height: 42px; width: 100%;" onclick="printCalendar()">🖨️ พิมพ์ปฏิทิน</button>
                 </div>
             </div>
         </div>
-    <div id="updateModal" class="modal">
-        <div class="modal-content shadow-lg" style="max-width: 600px; border-top: 5px solid #0f766e; padding: 25px;">
-            <div class="d-flex-between align-center" style="margin-bottom: 15px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px;">
-                <h2 style="color: #0f766e; margin: 0; font-size: 22px;">🚀 ประวัติการอัปเดตเว็บ (Changelog)</h2>
-                <span class="close" onclick="closeUpdateModal()">&times;</span>
+
+        <div id="calendar-print-area">
+            <div style="text-align:center; padding: 40px; color:#64748b; font-size: 16px;">
+                กรุณากด "คำนวณขนาดยา" ก่อนเพื่อสร้างปฏิทินครับ 💊
             </div>
+        </div>
 
-            <div style="max-height: 400px; overflow-y: auto; padding-right: 15px;">
+    </div>
 
-                <div style="margin-bottom: 25px;">
-                    <h3 style="color: #0f766e; margin: 0 0 8px 0; font-size: 18px;">✨ เวอร์ชัน 1.2.0 <span style="font-size: 14px; color: #64748b; font-weight: normal;">(16 เมษายน 2569)</span></h3>
-                    <div style="background-color: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #cbd5e1;">
-                        <ul style="margin: 0; padding-left: 20px; color: #334155; font-size: 14px; line-height: 1.7;">
-                            <li><b>เพิ่มหน้ากรณีที่มีการใช้ยายาวนานมากกว่า 1 เดือน:</b> ใน 1 หน้ากระดาษจะสามารถโชว์ได้สูงสุด 12 วันที่ และหากมากกว่านั้นจะทำการตัดวันไปขึ้นหน้าต่อไป </li>
-                            <li><b>เพิ่มการโชว์ค่าทางห้องปฏิบัติการและการอธิบาบเพิ่มเติม</b> สามารถเพิ่มค่าทางห้องปฏิบัติการและอธิบายข้อมูลอื่น ๆ เพิ่มเติมได้แล้วในแต่ละวัน </li>
-                            <li><b>เพิ่มเครื่องมือใหม่เพิ่มเติม</b> RegiSCAR Score for DRESS และ ประเมินพื้นที่ผิวที่เกิดผื่น (Lund & Browder Chart)</li>
-                        </ul>
-                    </div>
+    <footer class="main-footer">
+        <div class="footer-content">
+            <p>พัฒนาและออกแบบโดย: <span class="highlight-green">Endo-Pharma : by เภสัชกรเอ็นดู</span></p>
+            <p class="developer-info">ผู้พัฒนา นาย ระพีพัฒน์ ศุภโกศล การศึกษาระดับปริญญาตรี คณะเภสัชศาสตร์ มหาวิทยาลัยมหาสารคาม</p>
+            <p class="footer-note">เครื่องมือนี้สร้างขึ้นเพื่ออำนวยความสะดวกในการทำ Regimen ยา Warfarin</p>
+            <p class="footer-version">เวอร์ชัน 1.1.0 | สงวนลิขสิทธิ์ © 2026</p>
+        </div>
+    </footer>
+
+    <div id="changelogModal" class="modal-overlay">
+        <div class="changelog-modal">
+            <div class="modal-header">
+                <h2>🚀 ประวัติการอัปเดตเว็บ (Changelog)</h2>
+                <button class="close-modal" onclick="closeChangelog()">&times;</button>
+            </div>
+            <div class="modal-body">
+
+                <div class="version-header">
+                    <span class="version-title">🌱 เวอร์ชัน 1.1.0</span> <span class="version-date">(19 เมษายน 2569)</span>
+                </div>
+                <div class="version-box box-dashed">
+                    <ul>
+                        <li>เพิ่มฟังก์ชัน <strong>การหักแบ่ง 1/4 เม็ด</strong> สำหรับการจัด Regimen ยา</li>
+                        <li>เพิ่มระบบ <strong>พิมพ์ปฏิทินการกินยา</strong> สำหรับแจกให้ผู้ป่วยกลับบ้าน สำหรับกระดาษ A4 (แนวนอน) และ A5 (แนวนอน) เท่านั้น</li>
+                    </ul>
                 </div>
 
-                <div style="margin-bottom: 25px;">
-                    <h3 style="color: #0f766e; margin: 0 0 8px 0; font-size: 18px;">✨ เวอร์ชัน 1.1.0 <span style="font-size: 14px; color: #64748b; font-weight: normal;">(14 เมษายน 2569)</span></h3>
-                    <div style="background-color: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #cbd5e1;">
-                        <ul style="margin: 0; padding-left: 20px; color: #334155; font-size: 14px; line-height: 1.7;">
-                            <li><b>อัพเดทการแสดงระยะเวลาการใช้ยา:</b> ระบบคำนวณระยะเวลาการใช้ยาก่อนเกิด ADR ให้อัตโนมัติ </li>
-                            <li><b>เพิ่มเวลา First/Last dose ของยา:</b> สามารถเพิ่มข้อมูลระยะเวลาการเริ่มใช้ยาหรือหยุดยาเพิ่มเติมได้</li>
-                            <li><b>ระบบบันทึกข้อมูลใหม่:</b> สามารถบันทึกทับไฟล์เดิมได้ทันที ไม่ต้องโหลดไฟล์ใหม่ซ้ำซ้อน</li>
-                        </ul>
-                    </div>
+                <div class="version-header">
+                    <span class="version-title">🥚 เวอร์ชัน 1.0.0</span> <span class="version-date">(18 เมษายน 2569)</span>
                 </div>
-
-                <div style="margin-bottom: 10px;">
-                    <h3 style="color: #475569; margin: 0 0 8px 0; font-size: 18px;">🌱 เวอร์ชัน 1.0.0 <span style="font-size: 14px; color: #94a3b8; font-weight: normal;">(13 เมษายน 2569)</span></h3>
-                    <div style="background-color: #f1f5f9; padding: 15px; border-radius: 8px; border: 1px dashed #cbd5e1;">
-                        <ul style="margin: 0; padding-left: 20px; color: #64748b; font-size: 14px; line-height: 1.7;">
-                            <li>เปิดตัวระบบ <b>Drug Exposure & ADR Timeline</b> อย่างเป็นทางการ</li>
-                            <li>รองรับการสร้างแผนภาพการแพ้ยา และจัดเรียงกลุ่มยาอัตโนมัติ</li>
-                        </ul>
-                    </div>
+                <div class="version-box box-dashed">
+                    <ul>
+                        <li>เปิดตัวเครื่องมือ<strong>คำนวณขนาดยา Warfarin</strong></li>
+                    </ul>
                 </div>
 
             </div>
-            <div class="text-center mt-3 pt-3" style="border-top: 1px solid #e2e8f0;">
-                <button onclick="closeUpdateModal()" class="btn btn-primary" style="padding: 10px 30px; font-size: 16px; border-radius: 20px;">🎉 รับทราบและเข้าสู่ระบบ</button>
+            <div class="modal-footer">
+                <button class="btn-acknowledge" onclick="closeChangelog()">🎉 รับทราบและเข้าสู่ระบบ</button>
             </div>
         </div>
     </div>
-    <footer class="app-footer">
-        <div class="footer-content">
-            <p> พัฒนาและออกแบบโดย: <a href="https://www.facebook.com/profile.php?id=61575490055558" target="_blank" class="developer-name" style="text-decoration: none; color: #0f766e; font-weight: bold; transition: color 0.3s;">Endo-Pharma : by เภสัชกรเอ็นดู</a></p>
-                <hr>ผู้พัฒนา นาย ระพีพัฒน์ ศุภโกศล
-                การศึกษาระดับปริญาตรี คณะเภสัชศาสตร์ มหาวิทยาลัยมหาสารคาม</p>
-            <p class="footer-subtext">เครื่องมือนี้สร้างขึ้นเพื่ออำนวยความสะดวกในการทำ Time line ประวัติการแพ้ยา</p>
-            <p class="footer-subtext">เวอร์ชัน 1.1.0 | สงวนลิขสิทธิ์ &copy; 2026</p>
-        </div>
-    </footer>
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-    <script src="https://npmcdn.com/flatpickr/dist/l10n/th.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="Assets/JS/script.js"></script>
 </body>
 </html>
